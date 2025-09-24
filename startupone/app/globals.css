@@ -17,3 +17,27 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.p-multiselect .p-multiselect-label {
+  display: flex;
+  flex-wrap: wrap; /* permite quebra */
+  gap: 0.25rem; /* espaçamento entre chips */
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+.p-multiselect-token {
+  margin-right: 0rem !important;
+}
+
+.p-fileupload .p-button {
+  /* todos os botões do FileUpload */
+  font-size: 0.875rem; /* texto menor */
+  padding: 0.25rem 0.75rem; /* diminui altura/largura */
+}
+
+.p-fileupload .p-button[aria-label="Upload"],
+.p-fileupload .p-button[aria-label="Cancel"] {
+  display: none;
+  opacity: 0;
+}
