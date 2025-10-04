@@ -1,0 +1,83 @@
+import { BellIcon, DotsThreeOutlineVerticalIcon, PencilSimpleIcon } from "@phosphor-icons/react";
+import { Badge } from "primereact/badge";
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
+import { InputText } from "primereact/inputtext";
+
+export default function SideBarComponent() {
+    return (
+        <div className="h-screen w-[350px] fixed start-0 top-0 border-r border-gray-300 bg-gray-50 flex flex-col items-center p-3">
+            <button className="rounded-full transition-colors duration-150 size-[35px] bg-blue-600 text-white cursor-pointer absolute top-[20px] end-[20px] z-[100]">
+                <i className="p-overlay-badge flex items-center justify-center">
+                    <BellIcon size={22} weight="fill" />
+                    <Badge value="2" severity="danger"></Badge>
+                </i>
+            </button>
+
+            <div className="flex p-3 w-full gap-x-2 relative">
+                <div className="size-[55px] rounded-full bg-gray-200 shrink-0"></div>
+                <div className="flex flex-col justify-center w-full">
+                    <div className="flex items-center gap-x-2">
+                        <h1 className="text-blue-600 text-lg font-semibold">João Pedro</h1>
+                        <button className="cursor-pointer rounded-full p-1 transition-colors text-blue-600 hover:bg-blue-600 hover:text-white">
+                            <PencilSimpleIcon weight="fill" />
+                        </button>
+                    </div>
+                    <p className="text-gray-600 text-sm">Prédio x, Apto 101</p>
+                </div>
+            </div>
+
+            <div className="w-full p-3">
+                <IconField iconPosition="left" className="w-full">
+                    <InputIcon className="pi pi-search"> </InputIcon>
+                    <InputText placeholder="Pesquisar" className="w-full" />
+                </IconField>
+            </div>
+
+
+
+            <div className="w-full flex flex-col gap-y-1
+            *:h-[50px] *:w-full *:flex *:items-center *:gap-x-3 *:rounded-lg *:transition-colors *:duration-150 *:hover:bg-gray-200 *:p-4 *:cursor-pointer">
+                <button>
+                    <i className="pi pi-user text-blue-600 shrink-0" style={{ fontSize: '1.2rem' }}></i>
+                    <p className="">Minhas solicitações</p>
+                </button>
+                <button>
+                    <i className="pi pi-plus text-blue-600 shrink-0" style={{ fontSize: '1.2rem' }}></i>
+                    <p className="">Nova solicitação</p>
+                </button>
+                <button>
+                    <i className="pi pi-wrench text-blue-600 shrink-0" style={{ fontSize: '1.2rem' }}></i>
+                    <p className="">Pedir serviço</p>
+                </button>
+                <button>
+                    <i className="pi pi-box text-blue-600 shrink-0" style={{ fontSize: '1.2rem' }}></i>
+                    <p className="">Pedir objeto</p>
+                </button>
+                <button>
+                    <i className="pi pi-calendar-plus text-blue-600 shrink-0" style={{ fontSize: '1.2rem' }}></i>
+                    <p className="">Agendar espaço</p>
+                </button>
+            </div>
+
+            <div className="border-b border-gray-300 w-[80%] my-2"></div>
+
+            <div className="w-full flex flex-col gap-y-1
+            *:h-[50px] *:w-full *:flex *:items-center *:gap-x-3 *:rounded-lg *:transition-colors *:duration-150 *:hover:bg-gray-200 *:p-4 *:cursor-pointer">
+                <button>
+                    <i className="pi pi-cog text-blue-600 shrink-0" style={{ fontSize: '1.2rem' }}></i>
+                    <p className="">Configurações</p>
+                </button>
+                <button>
+                    <i className="pi pi-info-circle text-blue-600 shrink-0" style={{ fontSize: '1.2rem' }}></i>
+                    <p className="">Informações</p>
+                </button>
+                <button>
+                    <i className="pi pi-question-circle text-blue-600 shrink-0" style={{ fontSize: '1.2rem' }}></i>
+                    <p className="">Ajuda</p>
+                </button>
+            </div>
+
+        </div>
+    )
+}

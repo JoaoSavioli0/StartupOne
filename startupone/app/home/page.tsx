@@ -2,11 +2,31 @@
 
 import SelectionButton from "@/components/sectionButton";
 import SolicitationBox from "@/components/solicitationBox";
-import NewSolicitationBox from "@/components/newSolicitationBox";
-import { BellSimpleIcon, ListIcon } from "@phosphor-icons/react";
-import { Button } from "primereact/button";
+import NewBookingBoxComponent from "@/components/newBookingBox";
+import { addLocale, locale } from "primereact/api";
+import { useEffect } from "react";
+import FastCreation from "@/components/fastCreation";
+import SideBar from "@/components/sideBar";
 
 export default function HomePage() {
+
+  useEffect(() => {
+    // registra as traduções para pt-BR
+    addLocale("pt-BR", {
+      firstDayOfWeek: 0,
+      dayNames: ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"],
+      dayNamesShort: ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"],
+      dayNamesMin: ["D", "S", "T", "Q", "Q", "S", "S"],
+      monthNames: ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"],
+      monthNamesShort: ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"],
+      today: "Hoje",
+      clear: "Limpar"
+    });
+
+    // define pt-BR como padrão
+    locale("pt-BR");
+  }, [])
+
   const userExampleData = {
     id: 1,
     name: "João Pedro",
@@ -21,31 +41,11 @@ export default function HomePage() {
   };
 
   return (
-    <div className="w-full min-h-screen flex justify-center items-center bg-[#F5F6F8]">
-      <div className="w-min h-full flex flex-col gap-y-2">
-        <div className="w-full h-[100px] rounded-md bg-white flex flex-col justify-center p-4 mt-10">
-          <div className="w-full h-full flex items-center gap-x-3">
-            <div className="size-[60px] rounded-full flex items-center justify-center bg-gray-400">
-              <h1 className="font-bold text-2xl text-white">
-                {getNameFirstLetters()}
-              </h1>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-blue-600 text-xl">
-                {userExampleData.place}
-              </span>
-              <p className="font-medium text-gray-600">
-                {userExampleData.name}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="w-full flex gap-x-2">
-          <NewSolicitationBox />
-          <SelectionButton title="Agendar espaco" icon="calendar" />
-          <SelectionButton title="Encontrar servicos" icon="wrench" />
-          <SelectionButton title="Minhas solicitacoes" icon="user" />
-        </div>
+    <div className="w-full min-h-screen flex justify-center items-center bg-[#F5F6F8] relative">
+      <SideBar />
+
+      <div className="w-[35%] h-full flex flex-col gap-y-2">
+        <FastCreation />
         <div className="w-full flex flex-col gap-y-4">
           <SolicitationBox
             title="Botão do elevador com defeito"

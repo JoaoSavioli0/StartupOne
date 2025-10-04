@@ -10,6 +10,8 @@ import 'primeicons/primeicons.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css'; // ou outro tema
 import 'primereact/resources/primereact.min.css';
 
+
+
 const montserrat = Montserrat({
   weight: ["400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],

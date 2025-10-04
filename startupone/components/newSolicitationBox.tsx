@@ -1,6 +1,6 @@
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
-import { useRef, useState } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import SelectionButton from "./sectionButton";
 import { FloatLabel } from "primereact/floatlabel";
 import { InputText } from "primereact/inputtext";
@@ -19,7 +19,7 @@ import { tags } from "@/utils/lists";
 import { InputTextarea } from "primereact/inputtextarea";
 import FileUpload from "./fileUpload";
 
-export default function NewSolicitationBoxComponent() {
+const NewSolicitationBox = forwardRef((props, ref) => {
   const [visible, setVisible] = useState(false);
   const [title, setTitle] = useState("Escolha o tipo");
   const [step, setStep] = useState(1);
@@ -45,6 +45,13 @@ export default function NewSolicitationBoxComponent() {
   const validSolicitation = (): boolean => {
     return descriptionText.length > 0 && titleText.length > 0;
   };
+
+  useImperativeHandle(ref, () => ({
+    openDialog: () => setVisible(true),
+    closeDialog: () => setVisible(false)
+  }))
+
+  if (!visible) return null
 
   return (
     <div>
@@ -193,26 +200,6 @@ export default function NewSolicitationBoxComponent() {
 
               <FileUpload />
 
-              {/* <FileUpload
-                name="demo[]"
-                url={"/api/upload"}
-                multiple
-                customUpload
-                accept="image/*"
-                uploadLabel=""
-                cancelLabel=""
-                chooseOptions={{
-                  icon: <CameraIcon weight="bold" size={17} className="mr-2" />,
-                }}
-                chooseLabel="Selecionar"
-                maxFileSize={1000000}
-                emptyTemplate={
-                  <p className="m-0">
-                    Insira fotos e vídeos relevantes para a solicitação.
-                  </p>
-                }
-              /> */}
-
               <Button
                 label="Solicitar"
                 disabled={!validSolicitation()}
@@ -225,3 +212,6 @@ export default function NewSolicitationBoxComponent() {
     </div>
   );
 }
+)
+
+export default NewSolicitationBox;
