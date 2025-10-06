@@ -4,7 +4,12 @@ import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
 
-export default function SideBarComponent() {
+interface SideBarProps {
+    onOpenSolicitation: (type: number, header: string) => void
+    onOpenBooking: (placeId: number) => void
+}
+
+export default function SideBarComponent({ onOpenSolicitation, onOpenBooking }: SideBarProps) {
     return (
         <div className="h-screen w-[350px] fixed start-0 top-0 border-r border-gray-300 bg-gray-50 flex flex-col items-center p-3">
             <button className="rounded-full transition-colors duration-150 size-[35px] bg-blue-600 text-white cursor-pointer absolute top-[20px] end-[20px] z-[100]">
@@ -34,15 +39,13 @@ export default function SideBarComponent() {
                 </IconField>
             </div>
 
-
-
             <div className="w-full flex flex-col gap-y-1
             *:h-[50px] *:w-full *:flex *:items-center *:gap-x-3 *:rounded-lg *:transition-colors *:duration-150 *:hover:bg-gray-200 *:p-4 *:cursor-pointer">
                 <button>
                     <i className="pi pi-user text-blue-600 shrink-0" style={{ fontSize: '1.2rem' }}></i>
                     <p className="">Minhas solicitações</p>
                 </button>
-                <button>
+                <button onClick={() => onOpenSolicitation(2, "Nova solicitação")}>
                     <i className="pi pi-plus text-blue-600 shrink-0" style={{ fontSize: '1.2rem' }}></i>
                     <p className="">Nova solicitação</p>
                 </button>
@@ -54,7 +57,7 @@ export default function SideBarComponent() {
                     <i className="pi pi-box text-blue-600 shrink-0" style={{ fontSize: '1.2rem' }}></i>
                     <p className="">Pedir objeto</p>
                 </button>
-                <button>
+                <button onClick={() => onOpenBooking(0)}>
                     <i className="pi pi-calendar-plus text-blue-600 shrink-0" style={{ fontSize: '1.2rem' }}></i>
                     <p className="">Agendar espaço</p>
                 </button>

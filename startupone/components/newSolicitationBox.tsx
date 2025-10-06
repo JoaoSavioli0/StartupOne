@@ -19,12 +19,16 @@ import { tags } from "@/utils/lists";
 import { InputTextarea } from "primereact/inputtextarea";
 import FileUpload from "./fileUpload";
 
-const NewSolicitationBox = forwardRef((props, ref) => {
-  const [visible, setVisible] = useState(false);
-  const [title, setTitle] = useState("Escolha o tipo");
-  const [step, setStep] = useState(1);
-  const [type, setType] = useState(0);
+interface NewSolicitationProps {
+  isOpen: boolean;
+  onClose: () => void;
+  inheritedType: number;
+  inheritedStep: number;
+  setStep: (newStep: number) => void;
+  inheritedTitle?: string;
+}
 
+export default function NewSolicitationBox({ isOpen, onClose, inheritedType, inheritedStep, inheritedTitle, setStep }: NewSolicitationProps) {
   const [itemName, setItemName] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState(1);
   const periodOptions = [
@@ -36,47 +40,37 @@ const NewSolicitationBox = forwardRef((props, ref) => {
   const [descriptionText, setDescriptionText] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
 
-  function stepOneNext(newStep: number, newType: number, newTitle: string) {
+  const nextStep = (newStep: number) => {
     setStep(newStep);
-    setType(newType);
-    setTitle(newTitle);
+  }
+
+  const backStep = () => {
+    setStep(1);
   }
 
   const validSolicitation = (): boolean => {
     return descriptionText.length > 0 && titleText.length > 0;
   };
 
-  useImperativeHandle(ref, () => ({
-    openDialog: () => setVisible(true),
-    closeDialog: () => setVisible(false)
-  }))
-
-  if (!visible) return null
-
   return (
     <div>
-      <button onClick={() => setVisible(true)}>
-        <SelectionButton title="Nova solicitacao" icon="plus" />
-      </button>
       <Dialog
-        header={title}
-        visible={visible}
+        header={inheritedTitle}
+        visible={isOpen}
         onHide={() => {
-          if (!visible) return;
-          setVisible(false);
-          setStep(1);
-          setType(0);
+          if (!isOpen) return;
+          onClose();
         }}
         style={{ width: "30vw" }}
         breakpoints={{ "960px": "75vw", "641px": "100vw" }}
       >
         <div className="w-full min-h-[150px]">
-          {type == 0 && step == 1 && (
+          {inheritedType == 0 && inheritedStep == 1 && (
             <div className="flex flex-col gap-y-0.5">
               <button
                 className="w-full flex items-center justify-between px-4 h-[50px] first:rounded-t-lg last:rounded-b-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-100 cursor-pointer"
                 onClick={() => {
-                  stepOneNext(2, 1, "Novo pedido");
+                  nextStep(2);
                 }}
               >
                 <div className="flex gap-x-2">
@@ -89,7 +83,7 @@ const NewSolicitationBox = forwardRef((props, ref) => {
               <button
                 className="w-full flex items-center justify-between px-4 h-[50px] first:rounded-t-lg last:rounded-b-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-100 cursor-pointer"
                 onClick={() => {
-                  stepOneNext(2, 2, "Nova reclamação");
+                  nextStep(2);
                 }}
               >
                 <div className="flex gap-x-2">
@@ -102,7 +96,7 @@ const NewSolicitationBox = forwardRef((props, ref) => {
               <button
                 className="w-full flex items-center justify-between px-4 h-[50px] first:rounded-t-lg last:rounded-b-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-100 cursor-pointer"
                 onClick={() => {
-                  stepOneNext(2, 3, "Nova sugestão");
+                  nextStep(2);
                 }}
               >
                 <div className="flex gap-x-2">
@@ -115,7 +109,7 @@ const NewSolicitationBox = forwardRef((props, ref) => {
           )}
 
           {/* Etapa 2 Pedido*/}
-          {type == 1 && step == 2 && (
+          {inheritedType == 1 && inheritedStep == 2 && (
             <form className="mt-4 flex flex-col gap-y-4 w-full z-50">
               <FloatLabel>
                 <InputText
@@ -142,7 +136,7 @@ const NewSolicitationBox = forwardRef((props, ref) => {
           )}
 
           {/* Etapa 2 Reclamação*/}
-          {type == 2 && step == 2 && (
+          {inheritedType == 2 && inheritedStep == 2 && (
             <form className="mt-6 flex flex-col gap-y-8 w-full z-50">
               <FloatLabel>
                 <InputText
@@ -212,6 +206,3 @@ const NewSolicitationBox = forwardRef((props, ref) => {
     </div>
   );
 }
-)
-
-export default NewSolicitationBox;
