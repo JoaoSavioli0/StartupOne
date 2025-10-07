@@ -28,7 +28,14 @@ interface NewSolicitationProps {
   inheritedTitle?: string;
 }
 
-export default function NewSolicitationBox({ isOpen, onClose, inheritedType, inheritedStep, inheritedTitle, setStep }: NewSolicitationProps) {
+export default function NewSolicitationBox({
+  isOpen,
+  onClose,
+  inheritedType,
+  inheritedStep,
+  inheritedTitle,
+  setStep,
+}: NewSolicitationProps) {
   const [itemName, setItemName] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState(1);
   const periodOptions = [
@@ -42,11 +49,11 @@ export default function NewSolicitationBox({ isOpen, onClose, inheritedType, inh
 
   const nextStep = (newStep: number) => {
     setStep(newStep);
-  }
+  };
 
   const backStep = () => {
     setStep(1);
-  }
+  };
 
   const validSolicitation = (): boolean => {
     return descriptionText.length > 0 && titleText.length > 0;
@@ -110,7 +117,7 @@ export default function NewSolicitationBox({ isOpen, onClose, inheritedType, inh
 
           {/* Etapa 2 Pedido*/}
           {inheritedType == 1 && inheritedStep == 2 && (
-            <form className="mt-4 flex flex-col gap-y-4 w-full z-50">
+            <form className="mt-4 flex flex-col gap-y-4 py-3 w-full z-50">
               <FloatLabel>
                 <InputText
                   id="item"
