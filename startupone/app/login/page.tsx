@@ -163,7 +163,7 @@ export default function LoginPage() {
                   <Button
                     label="Alterar"
                     severity="info"
-                    className="!rounded-l-none"
+                    className="!rounded-l-none !bg-primary"
                     onClick={() => {
                       sessionRemove("confirmCondoInfo");
                       setVisibleForm("confirmation");
@@ -217,7 +217,7 @@ export default function LoginPage() {
                   label="Entrar"
                   severity="info"
                   type="submit"
-                  className="w-full"
+                  className="w-full !bg-primary"
                 />
 
                 <Button
@@ -315,7 +315,7 @@ export default function LoginPage() {
                   label="Cadastrar"
                   severity="info"
                   type="submit"
-                  className="w-full"
+                  className="w-full !bg-primary"
                 />
 
                 <Button

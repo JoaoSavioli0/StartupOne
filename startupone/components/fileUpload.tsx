@@ -75,7 +75,7 @@ export default function FileUploadComponent() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="p-button p-component !mt-4 !py-2 font-semibold flex gap-x-2"
+            className="p-button p-component !mt-4 !py-2 font-semibold flex gap-x-2 !bg-primary"
           >
             <PlusIcon weight="bold" />
             Escolher

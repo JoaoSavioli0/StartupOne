@@ -191,6 +191,8 @@ export default function NewBookingBoxComponent({
         style={{ width: "500px", height: "500px" }}
         breakpoints={{ "960px": "75vw", "641px": "100vw" }}
         className="!relative"
+        draggable={false}
+        resizable={false}
       >
         {inheritedStep == 2 && (
           <button

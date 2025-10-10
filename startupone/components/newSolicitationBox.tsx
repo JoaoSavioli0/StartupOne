@@ -15,9 +15,11 @@ import {
 } from "@phosphor-icons/react";
 import { SelectButton } from "primereact/selectbutton";
 import { MultiSelect } from "primereact/multiselect";
-import { tags } from "@/utils/lists";
+import { profissoes, tags } from "@/utils/lists";
 import { InputTextarea } from "primereact/inputtextarea";
 import FileUpload from "./fileUpload";
+import { Dropdown } from "primereact/dropdown";
+import { constants } from "node:crypto";
 
 interface NewSolicitationProps {
   isOpen: boolean;
@@ -36,8 +38,17 @@ export default function NewSolicitationBox({
   inheritedTitle,
   setStep,
 }: NewSolicitationProps) {
-  const [itemName, setItemName] = useState("");
-  const [selectedPeriod, setSelectedPeriod] = useState(1);
+  const [itemRequest, setItemRequest] = useState({
+    itemName: "",
+    period: 1,
+    days: "",
+  });
+
+  const [jobRequest, setJobRequest] = useState({
+    occupation: "",
+    description: "",
+  });
+
   const periodOptions = [
     { name: "Por pouco tempo", value: 1 },
     { name: "Por um período", value: 2 },
@@ -51,12 +62,17 @@ export default function NewSolicitationBox({
     setStep(newStep);
   };
 
-  const backStep = () => {
-    setStep(1);
-  };
-
   const validSolicitation = (): boolean => {
     return descriptionText.length > 0 && titleText.length > 0;
+  };
+
+  const closeBox = () => {
+    setTitleText("");
+    setDescriptionText("");
+    setSelectedTags([]);
+    setItemRequest({ itemName: "", period: 1, days: "" });
+    setJobRequest({ occupation: "", description: "" });
+    onClose();
   };
 
   return (
@@ -66,10 +82,12 @@ export default function NewSolicitationBox({
         visible={isOpen}
         onHide={() => {
           if (!isOpen) return;
-          onClose();
+          closeBox();
         }}
         style={{ width: "30vw" }}
         breakpoints={{ "960px": "75vw", "641px": "100vw" }}
+        draggable={false}
+        resizable={false}
       >
         <div className="w-full min-h-[150px]">
           {inheritedType == 0 && inheritedStep == 1 && (
@@ -115,14 +133,16 @@ export default function NewSolicitationBox({
             </div>
           )}
 
-          {/* Etapa 2 Pedido*/}
+          {/* Etapa 1 Pedir item*/}
           {inheritedType == 1 && inheritedStep == 2 && (
-            <form className="mt-4 flex flex-col gap-y-4 py-3 w-full z-50">
+            <form className="mt-4 flex flex-col gap-y-4 py-1 w-full z-50">
               <FloatLabel>
                 <InputText
                   id="item"
-                  value={itemName}
-                  onChange={(e) => setItemName(e.target.value)}
+                  value={itemRequest.itemName}
+                  onChange={(e) =>
+                    setItemRequest({ ...itemRequest, itemName: e.target.value })
+                  }
                   className="w-full"
                 />
                 <label htmlFor="item">O que você precisa?</label>
@@ -131,14 +151,68 @@ export default function NewSolicitationBox({
               <div className="card flex justify-content-center w-full">
                 <SelectButton
                   className="w-full *:w-1/2"
-                  value={selectedPeriod}
-                  onChange={(e) => setSelectedPeriod(e.value)}
+                  value={itemRequest.period}
+                  onChange={(e) =>
+                    setItemRequest({ ...itemRequest, period: e.value })
+                  }
                   optionLabel="name"
                   options={periodOptions}
                 />
               </div>
+              {itemRequest.period == 2 && (
+                <FloatLabel className="mt-3">
+                  <InputText
+                    id="item"
+                    value={itemRequest.days}
+                    onChange={(e) =>
+                      setItemRequest({ ...itemRequest, days: e.target.value })
+                    }
+                    className="w-full"
+                    keyfilter="int"
+                    maxLength={2}
+                  />
+                  <label htmlFor="item">Por quantos dias?</label>
+                </FloatLabel>
+              )}
 
-              <Button label="Solicitar" className="!bg-sky-[#6366F1]" />
+              <Button label="Solicitar" className="!bg-primary" />
+            </form>
+          )}
+
+          {/* Etapa 1 Pedir serviço*/}
+          {inheritedType == 3 && inheritedStep == 2 && (
+            <form className="mt-4 flex flex-col gap-y-4 py-1 w-full z-50">
+              <FloatLabel>
+                <Dropdown
+                  value={jobRequest.occupation}
+                  onChange={(e) =>
+                    setJobRequest({ ...jobRequest, occupation: e.target.value })
+                  }
+                  options={profissoes}
+                  optionLabel="occupation"
+                  placeholder="Selecione"
+                  filter
+                  className="w-full"
+                />
+                <label htmlFor="item">Que profissional você precisa?</label>
+              </FloatLabel>
+
+              <FloatLabel className="mt-3">
+                <InputText
+                  id="item"
+                  value={jobRequest.description}
+                  onChange={(e) =>
+                    setJobRequest({
+                      ...jobRequest,
+                      description: e.target.value,
+                    })
+                  }
+                  className="w-full"
+                />
+                <label htmlFor="item">Descreva o trabalho brevemente</label>
+              </FloatLabel>
+
+              <Button label="Solicitar" className="!bg-primary" />
             </form>
           )}
 
@@ -204,7 +278,7 @@ export default function NewSolicitationBox({
               <Button
                 label="Solicitar"
                 disabled={!validSolicitation()}
-                className="!bg-sky-[#6366F1]"
+                className="!bg-primary"
               />
             </form>
           )}

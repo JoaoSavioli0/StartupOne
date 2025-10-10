@@ -9,8 +9,12 @@ import FastCreation from "@/components/fastCreation";
 import SideBar from "@/components/sideBar";
 import NewSolicitationBox from "@/components/newSolicitationBox";
 import { BookingInfo } from "../models/condoClasses";
+import { useRouter } from "next/navigation";
+import SurveyBox from "@/components/surveyBox";
+import RequestBox from "@/components/requestBox";
 
 export default function HomePage() {
+  const router = useRouter();
   useEffect(() => {
     // registra as traduções para pt-BR
     addLocale("pt-BR", {
@@ -87,9 +91,6 @@ export default function HomePage() {
 
   const closeNewSolicitation = () => {
     setIsNewSolicitationOpen(false);
-    setSolicitationType(0);
-    setSolicitationStep(1);
-    setSolicitationHeader("Escolha uma opção");
   };
   const openNewSolicitation = (type: number, header: string) => {
     setSolicitationType(type);
@@ -131,6 +132,7 @@ export default function HomePage() {
       <SideBar
         onOpenSolicitation={openNewSolicitation}
         onOpenBooking={openNewBooking}
+        router={router}
       />
 
       <div className="w-[630px] h-full flex flex-col gap-y-2 py-4">
@@ -141,6 +143,8 @@ export default function HomePage() {
             text="Defeito no botão x do elevador do prédio y"
             date="20/09/2025"
           />
+          <SurveyBox />
+          <RequestBox />
         </div>
       </div>
     </div>
