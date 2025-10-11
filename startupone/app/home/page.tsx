@@ -144,7 +144,10 @@ export default function HomePage() {
             date="20/09/2025"
           />
           <SurveyBox />
-          <RequestBox />
+
+          <RequestBox type="object" title="Furadeira" description="Preciso de uma furadeira emprestada para parafusar uma cortina na minha cozinha!" days={0} />
+
+          <RequestBox type="service" title="Mecânico" description="Alguém poderia me recomendar um mecânico de confiança, para fazer uma revisão no meu carro essa semana?" days={0} />
         </div>
       </div>
     </div>

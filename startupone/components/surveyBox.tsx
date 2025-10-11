@@ -58,17 +58,17 @@ export default function SurveyBox() {
           <AvatarGroup className="gap-x-1.5">
             <Avatar
               className="!size-[26px]"
-              image="/images/avatar/amyelsner.png"
+              image="/images/perfil.png"
               shape="circle"
             />
             <Avatar
               className="!size-[26px]"
-              image="/images/avatar/asiyajavayant.png"
+              image="/images/perfil_2.png"
               shape="circle"
             />
             <Avatar
               className="!size-[26px]"
-              image="/images/avatar/onyamalimba.png"
+              image="/images/perfil_3.png"
               shape="circle"
             />
             <Avatar
