@@ -12,18 +12,29 @@ import { Button } from "primereact/button";
 import { RadioButton } from "primereact/radiobutton";
 import { useState } from "react";
 
-class SolicitationBoxProps {
-  title!: string;
-  text!: string;
-  date!: string;
+interface SolicitationBoxProps {
+  title: string;
+  text: string;
+  place: string;
+  date: string;
+  tags?: string[];
+  residentName: string;
+  residentAvatarUrl?: string;
+  residentPlace: string;
+  status: "Pendente" | "Em andamento" | "Concluído";
 }
 
 export default function SolicitationBoxComponent({
   title,
   text,
   date,
+  tags = [],
+  residentName,
+  residentAvatarUrl,
+  residentPlace,
+  place,
+  status,
 }: SolicitationBoxProps) {
-  const tags = ["Infraestrutura", "Elevadores", "Mobilidade"];
   return (
     <div className="w-full rounded-lg p-3 bg-white flex flex-col relative shadow-md">
       <div className="absolute top-[15px] end-[15px] rounded-full p-[5px] hover:bg-zinc-100 transition-colors duration-200 cursor-pointer">
@@ -38,8 +49,8 @@ export default function SolicitationBoxComponent({
       <div className="flex gap-x-2">
         <div className="size-[35px] rounded-full bg-gray-200"></div>
         <div className="flex flex-col">
-          <p className="font-semibold text-sm">João Pedro</p>
-          <p className="text-gray-600 text-xs">Apto 101</p>
+          <p className="font-semibold text-sm">{residentName}</p>
+          <p className="text-gray-600 text-xs">{residentPlace}</p>
         </div>
       </div>
 
@@ -59,7 +70,7 @@ export default function SolicitationBoxComponent({
       <div className="flex gap-x-3">
         <div className="flex text-gray-500 items-center gap-x-1">
           <MapPinIcon size={14} />
-          <p className="text-[13px]">Prédio 4</p>
+          <p className="text-[13px]">{place}</p>
         </div>
         <div className="flex text-gray-500 items-center gap-x-1">
           <ClockIcon size={14} />

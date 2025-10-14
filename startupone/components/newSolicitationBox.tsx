@@ -49,6 +49,11 @@ export default function NewSolicitationBox({
     description: "",
   });
 
+  const [newSurvey, setNewSurvey] = useState({
+    title: "",
+    options: [] as { label: string; value: number }[],
+  });
+
   const periodOptions = [
     { name: "Por pouco tempo", value: 1 },
     { name: "Por um período", value: 2 },
@@ -66,12 +71,23 @@ export default function NewSolicitationBox({
     return descriptionText.length > 0 && titleText.length > 0;
   };
 
+  const addSurveyOption = () => {
+    setNewSurvey({
+      ...newSurvey,
+      options: newSurvey.options.concat({
+        label: "",
+        value: newSurvey.options.length + 1,
+      }),
+    });
+  };
+
   const closeBox = () => {
     setTitleText("");
     setDescriptionText("");
     setSelectedTags([]);
     setItemRequest({ itemName: "", period: 1, days: "" });
     setJobRequest({ occupation: "", description: "" });
+    setNewSurvey({ title: "", options: [] });
     onClose();
   };
 
@@ -211,6 +227,65 @@ export default function NewSolicitationBox({
                 />
                 <label htmlFor="item">Descreva o trabalho brevemente</label>
               </FloatLabel>
+
+              <Button label="Solicitar" className="!bg-primary" />
+            </form>
+          )}
+
+          {/* Etapa 1 Criar enquete*/}
+          {inheritedType == 4 && inheritedStep == 2 && (
+            <form className="mt-1 flex flex-col gap-y-4 py-1 w-full z-50">
+              <FloatLabel className="mt-3">
+                <InputText
+                  id="item"
+                  value={newSurvey.title}
+                  onChange={(e) =>
+                    setNewSurvey({ ...newSurvey, title: e.target.value })
+                  }
+                  className="w-full"
+                />
+                <label htmlFor="item">Título da enquete</label>
+              </FloatLabel>
+
+              <div className="flex flex-col gap-y-2">
+                <p className="block font-normal text-[11px] text-gray-500 ml-3">
+                  Opções ({newSurvey.options.length}/5)
+                </p>
+
+                {newSurvey.options.map((option, index) => (
+                  <input
+                    key={option.value}
+                    className="w-full rounded-lg border border-gray-300 flex items-center justify-between h-[50px] px-4 relative  hover:bg-gray-100 transition-colors duration-150 outline-none"
+                    value={
+                      newSurvey.options.find(
+                        (opt) => opt.value === option.value
+                      )?.label || ""
+                    }
+                    onChange={(e) =>
+                      setNewSurvey({
+                        ...newSurvey,
+                        options: [
+                          ...newSurvey.options.slice(0, index),
+                          {
+                            label: e.target.value,
+                            value: option.value,
+                          },
+                          ...newSurvey.options.slice(index + 1),
+                        ],
+                      })
+                    }
+                  ></input>
+                ))}
+              </div>
+
+              {newSurvey.options.length < 5 && (
+                <div
+                  onClick={addSurveyOption}
+                  className="w-full rounded-lg cursor-pointer border-primary text-primary border-2 border-dotted size-[45px] flex items-center justify-center hover:bg-gray-50 transition-colors duration-100"
+                >
+                  <i className="pi pi-plus"></i>
+                </div>
+              )}
 
               <Button label="Solicitar" className="!bg-primary" />
             </form>
