@@ -4,7 +4,7 @@ import SelectionButton from "@/components/sectionButton";
 import SolicitationBox from "@/components/solicitationBox";
 import NewBookingBoxComponent from "@/components/newBookingBox";
 import { addLocale, locale } from "primereact/api";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import FastCreation from "@/components/fastCreation";
 import SideBar from "@/components/sideBar";
 import NewSolicitationBox from "@/components/newSolicitationBox";
@@ -12,7 +12,7 @@ import { BookingInfo } from "../models/condoClasses";
 import { useRouter } from "next/navigation";
 import SurveyBox from "@/components/surveyBox";
 import RequestBox from "@/components/requestBox";
-import { useMockData } from "@/context/MockDataContext";
+import { MockDataContext } from "@/context/MockDataContext";
 
 export default function HomePage() {
   const router = useRouter();
@@ -67,6 +67,8 @@ export default function HomePage() {
     locale("pt-BR");
   }, []);
 
+  const useMockData = () => useContext(MockDataContext) as any;
+
   const userExampleData = {
     id: 1,
     name: "João Pedro",
@@ -113,7 +115,7 @@ export default function HomePage() {
   class Survey {
     id!: number;
     title!: string;
-    options!: { label: string; value: number; votes: number }[];
+    options!: { text: string; value: number; votes: number }[];
   }
   class Solicitation {
     id!: number;
@@ -162,6 +164,7 @@ export default function HomePage() {
           <div className="w-full flex flex-col gap-y-4">
             {mockSolicitations.map((solicitation: Solicitation) => (
               <SolicitationBox
+                id={solicitation.id}
                 key={solicitation.id}
                 title={solicitation.title}
                 text={solicitation.text}
@@ -176,6 +179,7 @@ export default function HomePage() {
             {mockSurveys.map((survey: Survey) => (
               <SurveyBox
                 key={survey.id}
+                id={survey.id}
                 title={survey.title}
                 options={survey.options}
               />

@@ -8,11 +8,12 @@ import { title } from "process";
 import { useState } from "react";
 
 interface SurveyBoxProps {
+  id: number;
   title: string;
   options: { text: string; value: number; votes: number }[];
 }
 
-export default function SurveyBox({ title, options }: SurveyBoxProps) {
+export default function SurveyBox({ id, title, options }: SurveyBoxProps) {
   const [votedOption, setVotedOption] = useState<number | null>(null);
 
   const totalVotes = options.reduce((acc, option) => acc + option.votes, 0);
@@ -91,7 +92,9 @@ export default function SurveyBox({ title, options }: SurveyBoxProps) {
               />
               <label
                 htmlFor={`option-${option.value}`}
-                className="ml-2 font-medium pointer-events-none"
+                className={`ml-2 font-medium pointer-events-none text-zinc-600 ${
+                  votedOption == option.value ? "text-zinc-900" : ""
+                }`}
               >
                 {option.text}
               </label>

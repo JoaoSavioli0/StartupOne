@@ -1,6 +1,12 @@
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import {
+  forwardRef,
+  useContext,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import SelectionButton from "./sectionButton";
 import { FloatLabel } from "primereact/floatlabel";
 import { InputText } from "primereact/inputtext";
@@ -20,6 +26,10 @@ import { InputTextarea } from "primereact/inputtextarea";
 import FileUpload from "./fileUpload";
 import { Dropdown } from "primereact/dropdown";
 import { constants } from "node:crypto";
+import { MockDataContext } from "@/context/MockDataContext";
+import * as z from "zod";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface NewSolicitationProps {
   isOpen: boolean;
@@ -30,6 +40,31 @@ interface NewSolicitationProps {
   inheritedTitle?: string;
 }
 
+const newSolicitationSchema = z.object({
+  title: z
+    .string()
+    .min(6, { message: "O título deve ter pelo menos 6 caracteres" }),
+  description: z
+    .string()
+    .min(10, { message: "A descrição deve ter pelo menos 10 caracteres" }),
+  tags: z.array(z.object({ name: z.string(), code: z.string() })).max(6),
+});
+
+const newSurveySchema = z.object({
+  title: z
+    .string()
+    .min(6, { message: "O título deve ter pelo menos 6 caracteres" }),
+  options: z
+    .array(
+      z.object({
+        label: z.string().min(1, { message: "Preencha todas as opções" }),
+        value: z.number(),
+      })
+    )
+    .min(2, { message: "A enquete deve ter pelo menos 2 opções" })
+    .max(5, { message: "A enquete deve ter no máximo 5 opções" }),
+});
+
 export default function NewSolicitationBox({
   isOpen,
   onClose,
@@ -38,6 +73,8 @@ export default function NewSolicitationBox({
   inheritedTitle,
   setStep,
 }: NewSolicitationProps) {
+  const { addSolicitation, addSurvey } = useContext(MockDataContext) as any;
+
   const [itemRequest, setItemRequest] = useState({
     itemName: "",
     period: 1,
@@ -91,6 +128,76 @@ export default function NewSolicitationBox({
     onClose();
   };
 
+  // Tipos dos schemas
+  // Solicitação
+  type NewSolicitation = z.infer<typeof newSolicitationSchema>;
+  type NewSurvey = z.infer<typeof newSurveySchema>;
+
+  // Declarações do react hook forms
+  // Solicitação
+  const {
+    control: controlSolicitation,
+    register: registerSolicitation,
+    handleSubmit: handleNewSolicitation,
+    formState: { errors: errorsSolicitation },
+  } = useForm<NewSolicitation>({
+    resolver: zodResolver(newSolicitationSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      tags: [],
+    },
+  });
+
+  //Enquetes
+  const {
+    control: controlSurvey,
+    register: registerSurvey,
+    handleSubmit: handleNewSurvey,
+    formState: { errors: errorsSurvey },
+  } = useForm<NewSurvey>({
+    resolver: zodResolver(newSurveySchema),
+    defaultValues: {
+      title: "",
+      options: [{ label: "", value: 1 }],
+    },
+  });
+
+  const {
+    fields: surveyOptions,
+    append: appendOption,
+    remove: removeOption,
+  } = useFieldArray({
+    control: controlSurvey,
+    name: "options",
+  });
+
+  // handleSubmit dos forms
+  // Solicitação
+  const onSubmitNewSolicitation = (data: NewSolicitation) => {
+    addSolicitation({
+      title: data.title,
+      text: data.description,
+      tags: data.tags.map((tag) => tag.name) || [],
+      date: new Date().toISOString().split("T")[0],
+      place: "Prédio X",
+      residentName: "João Pedro",
+      residentAvatarUrl: "",
+      residentPlace: "Apto 101",
+      status: "Pendente",
+    });
+    closeBox();
+  };
+
+  const onSubmitNewSurvey = (data: NewSurvey) => {
+    console.log(data);
+    // addSurvey({
+    //   title: data.title,
+    //   options: data.options,
+    // });
+    // closeBox();
+  };
+
   return (
     <div>
       <Dialog
@@ -106,6 +213,7 @@ export default function NewSolicitationBox({
         resizable={false}
       >
         <div className="w-full min-h-[150px]">
+          {/* Tela opções */}
           {inheritedType == 0 && inheritedStep == 1 && (
             <div className="flex flex-col gap-y-0.5">
               <button
@@ -234,70 +342,98 @@ export default function NewSolicitationBox({
 
           {/* Etapa 1 Criar enquete*/}
           {inheritedType == 4 && inheritedStep == 2 && (
-            <form className="mt-1 flex flex-col gap-y-4 py-1 w-full z-50">
-              <FloatLabel className="mt-3">
-                <InputText
-                  id="item"
-                  value={newSurvey.title}
-                  onChange={(e) =>
-                    setNewSurvey({ ...newSurvey, title: e.target.value })
-                  }
-                  className="w-full"
-                />
-                <label htmlFor="item">Título da enquete</label>
-              </FloatLabel>
+            <form
+              onSubmit={handleNewSurvey(onSubmitNewSurvey)}
+              className="mt-1 flex flex-col gap-y-4 py-1 w-full z-50"
+            >
+              <div>
+                <FloatLabel className="mt-3">
+                  <InputText
+                    id="item"
+                    {...registerSurvey("title")}
+                    className="w-full"
+                  />
+                  <label htmlFor="item">Título da enquete</label>
+                </FloatLabel>
+                {errorsSurvey.title && (
+                  <span className="text-red-500 text-xs">
+                    {errorsSurvey.title.message}
+                  </span>
+                )}
+              </div>
 
               <div className="flex flex-col gap-y-2">
                 <p className="block font-normal text-[11px] text-gray-500 ml-3">
-                  Opções ({newSurvey.options.length}/5)
+                  Opções ({surveyOptions.length}/5)
                 </p>
 
-                {newSurvey.options.map((option, index) => (
-                  <input
-                    key={option.value}
-                    className="w-full rounded-lg border border-gray-300 flex items-center justify-between h-[50px] px-4 relative  hover:bg-gray-100 transition-colors duration-150 outline-none"
-                    value={
-                      newSurvey.options.find(
-                        (opt) => opt.value === option.value
-                      )?.label || ""
-                    }
-                    onChange={(e) =>
-                      setNewSurvey({
-                        ...newSurvey,
-                        options: [
-                          ...newSurvey.options.slice(0, index),
-                          {
-                            label: e.target.value,
-                            value: option.value,
-                          },
-                          ...newSurvey.options.slice(index + 1),
-                        ],
-                      })
-                    }
-                  ></input>
+                {surveyOptions.map((option, index) => (
+                  <div
+                    key={`${option.id}-${option.value}`}
+                    className="w-full rounded-lg border border-gray-300 flex items-center justify-between h-[50px] px-4 hover:bg-gray-50 transition-colors duration-150 outline-none relative"
+                  >
+                    <input
+                      placeholder={`Opção ${index + 1}`}
+                      className="w-[80%] h-full outline-none bg-transparent"
+                      {...registerSurvey(`options.${index}.label` as const)}
+                    ></input>
+                    <Button
+                      icon="pi pi-trash"
+                      rounded
+                      text
+                      severity="danger"
+                      aria-label="Fechar"
+                      className="!size-[30px]"
+                      type="button"
+                      onClick={() => removeOption(index)}
+                    />
+                  </div>
                 ))}
               </div>
 
-              {newSurvey.options.length < 5 && (
-                <div
-                  onClick={addSurveyOption}
-                  className="w-full rounded-lg cursor-pointer border-primary text-primary border-2 border-dotted size-[45px] flex items-center justify-center hover:bg-gray-50 transition-colors duration-100"
-                >
-                  <i className="pi pi-plus"></i>
-                </div>
-              )}
+              <div>
+                {surveyOptions.length < 5 && (
+                  <div
+                    onClick={() =>
+                      appendOption({
+                        label: "",
+                        value: surveyOptions.length + 1,
+                      })
+                    }
+                    className="w-full rounded-lg cursor-pointer border-primary text-primary border-2 border-dotted size-[45px] flex items-center justify-center hover:bg-gray-50 transition-colors duration-100"
+                  >
+                    <i className="pi pi-plus"></i>
+                  </div>
+                )}
+                {errorsSurvey.options && (
+                  <span className="text-red-500 text-xs">
+                    {errorsSurvey.options.message}
+                  </span>
+                )}
+              </div>
 
-              <Button label="Solicitar" className="!bg-primary" />
+              <Button
+                disabled={
+                  errorsSurvey.options != null || errorsSurvey.title != null
+                }
+                type="submit"
+                label="Solicitar"
+                className="!bg-primary"
+              />
             </form>
           )}
 
           {/* Etapa 2 Reclamação*/}
           {inheritedType == 2 && inheritedStep == 2 && (
-            <form className="mt-6 flex flex-col gap-y-8 w-full z-50">
+            <form
+              onSubmit={handleNewSolicitation(onSubmitNewSolicitation)}
+              className="mt-6 flex flex-col gap-y-8 w-full z-50"
+            >
               <FloatLabel>
                 <InputText
                   id="item"
                   value={titleText}
+                  {...registerSolicitation("title")}
                   onChange={(e) => setTitleText(e.target.value)}
                   className="w-full"
                 />
@@ -308,6 +444,7 @@ export default function NewSolicitationBox({
                 <InputTextarea
                   id="description"
                   value={descriptionText}
+                  {...registerSolicitation("description")}
                   onChange={(e) => setDescriptionText(e.target.value)}
                   className="w-full"
                   autoResize
@@ -323,34 +460,46 @@ export default function NewSolicitationBox({
                 </label>
               </FloatLabel>
 
-              <FloatLabel>
-                <MultiSelect
-                  value={selectedTags}
-                  onChange={(e) => {
-                    if (e.value.length <= 6) {
-                      setSelectedTags(e.value);
-                      console.log(selectedTags);
-                    }
-                  }}
-                  options={tags}
-                  optionLabel="name"
-                  display="chip"
-                  filter
-                  maxSelectedLabels={6}
-                  maxLength={6}
-                  className="w-full md:w-20rem !text-xs"
-                />
-                <label htmlFor="item">
-                  Gêneros da solicitação
-                  <span className="rounded-md bg-gray-100 px-1 ml-2">
-                    {selectedTags?.length}/6
-                  </span>
-                </label>
-              </FloatLabel>
+              <Controller
+                name="tags"
+                control={controlSolicitation}
+                render={({ field }) => (
+                  <FloatLabel>
+                    <MultiSelect
+                      value={field.value}
+                      onChange={(e) => {
+                        if (e.value.length <= 6) {
+                          setSelectedTags(e.value);
+                          field.onChange(e.value);
+                        }
+                      }}
+                      options={tags}
+                      optionLabel="name"
+                      display="chip"
+                      filter
+                      maxSelectedLabels={6}
+                      maxLength={6}
+                      className="w-full md:w-20rem !text-xs"
+                    />
+                    <label htmlFor="item">
+                      Gêneros da solicitação
+                      <span className="rounded-md bg-gray-100 px-1 ml-2">
+                        {selectedTags?.length}/6
+                      </span>
+                    </label>
+                  </FloatLabel>
+                )}
+              />
+              {errorsSolicitation.tags && (
+                <span className="text-red-500 text-xs">
+                  {errorsSolicitation.tags.message}
+                </span>
+              )}
 
               <FileUpload />
 
               <Button
+                type="submit"
                 label="Solicitar"
                 disabled={!validSolicitation()}
                 className="!bg-primary"

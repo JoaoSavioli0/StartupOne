@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect } from "react";
 
-const MockDataContext = createContext({});
+export const MockDataContext = createContext({});
 
 class Solicitation {
   id!: number;
@@ -17,6 +17,12 @@ class Solicitation {
   status!: "Pendente" | "Em andamento" | "Concluído";
 }
 
+class Survey {
+  id!: number;
+  title!: string;
+  options!: { text: string; value: number; votes: number }[];
+}
+
 export function MockDataProvider({ children }: { children: React.ReactNode }) {
   const mockSolicitations: Solicitation[] = [
     {
@@ -26,9 +32,9 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
       date: "2023-03-15",
       place: "Prédio X, apto 284",
       tags: ["Manutenção", "Urgente"],
-      residentName: "João Pedro",
+      residentName: "Thiago Meideiros",
       residentAvatarUrl: "",
-      residentPlace: "Apto 101",
+      residentPlace: "Apto 411",
       status: "Pendente",
     },
     {
@@ -45,7 +51,7 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
     },
   ];
 
-  const mockSurveys = [
+  const mockSurveys: Survey[] = [
     {
       id: 1,
       title: "Qual melhoria você gostaria de ver no condomínio?",
@@ -65,6 +71,10 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
     },
   ];
 
+  useEffect(() => {
+    console.log("Alterou: ", mockSolicitations);
+  }, [mockSolicitations]);
+
   const addSolicitation = (newSolicitation: Solicitation) => {
     newSolicitation.id = mockSolicitations.length + 1;
     mockSolicitations.push(newSolicitation);
@@ -79,13 +89,27 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const addSurvey = (newSurvey: Survey) => {
+    newSurvey.id = mockSurveys.length + 1;
+    mockSurveys.push(newSurvey);
+  };
+
+  const editSurvey = (updatedSurvey: Survey) => {
+    const index = mockSurveys.findIndex((s) => s.id === updatedSurvey.id);
+    if (index !== -1) {
+      mockSurveys[index] = updatedSurvey;
+    }
+  };
+
   return (
     <MockDataContext.Provider
       value={{
         mockSolicitations,
-        mockSurveys,
         addSolicitation,
         editSolicitation,
+        mockSurveys,
+        addSurvey,
+        editSurvey,
       }}
     >
       {children}

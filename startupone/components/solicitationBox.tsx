@@ -13,6 +13,7 @@ import { RadioButton } from "primereact/radiobutton";
 import { useState } from "react";
 
 interface SolicitationBoxProps {
+  id: number;
   title: string;
   text: string;
   place: string;
@@ -25,6 +26,7 @@ interface SolicitationBoxProps {
 }
 
 export default function SolicitationBoxComponent({
+  id,
   title,
   text,
   date,
@@ -57,7 +59,7 @@ export default function SolicitationBoxComponent({
       <div className="flex gap-x-1 mt-2">
         {tags.map((tag) => (
           <span
-            key={tag}
+            key={`${id}-${tag}`}
             className="py-[1px] px-1 bg-zinc-100 rounded-sm text-xs"
           >
             {tag}
