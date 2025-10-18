@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
-import { PrimeReactProvider, PrimeReactContext } from 'primereact/api';
+import { PrimeReactProvider, PrimeReactContext } from "primereact/api";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
 
-import 'primereact/resources/themes/lara-light-blue/theme.css';
-import 'primereact/resources/primereact.min.css';
+import "primereact/resources/themes/lara-light-blue/theme.css";
+import "primereact/resources/primereact.min.css";
 
-import 'primeicons/primeicons.css';
-import 'primereact/resources/themes/lara-light-indigo/theme.css'; // ou outro tema
-import 'primereact/resources/primereact.min.css';
-
-
+import "primeicons/primeicons.css";
+import "primereact/resources/themes/lara-light-indigo/theme.css"; // ou outro tema
+import "primereact/resources/primereact.min.css";
+import { MockDataProvider } from "@/context/MockDataContext";
 
 const montserrat = Montserrat({
   weight: ["400", "500", "600", "700", "800", "900"],
@@ -29,11 +28,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${montserrat.className} antialiased`}
-      >
+      <body className={`${montserrat.className} antialiased`}>
         <PrimeReactProvider>
-          {children}
+          <MockDataProvider>{children}</MockDataProvider>
         </PrimeReactProvider>
       </body>
     </html>

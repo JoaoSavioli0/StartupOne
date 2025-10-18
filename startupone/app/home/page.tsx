@@ -4,7 +4,7 @@ import SelectionButton from "@/components/sectionButton";
 import SolicitationBox from "@/components/solicitationBox";
 import NewBookingBoxComponent from "@/components/newBookingBox";
 import { addLocale, locale } from "primereact/api";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import FastCreation from "@/components/fastCreation";
 import SideBar from "@/components/sideBar";
 import NewSolicitationBox from "@/components/newSolicitationBox";
@@ -12,6 +12,7 @@ import { BookingInfo } from "../models/condoClasses";
 import { useRouter } from "next/navigation";
 import SurveyBox from "@/components/surveyBox";
 import RequestBox from "@/components/requestBox";
+import { MockDataContext } from "@/context/MockDataContext";
 
 export default function HomePage() {
   const router = useRouter();
@@ -66,6 +67,8 @@ export default function HomePage() {
     locale("pt-BR");
   }, []);
 
+  const useMockData = () => useContext(MockDataContext) as any;
+
   const userExampleData = {
     id: 1,
     name: "João Pedro",
@@ -109,6 +112,26 @@ export default function HomePage() {
     setIsNewBookingOpen(true);
   };
 
+  class Survey {
+    id!: number;
+    title!: string;
+    options!: { text: string; value: number; votes: number }[];
+  }
+  class Solicitation {
+    id!: number;
+    title!: string;
+    text!: string;
+    place!: string;
+    date!: string;
+    tags?: string[];
+    residentName!: string;
+    residentAvatarUrl?: string;
+    residentPlace!: string;
+    status!: "Pendente" | "Em andamento" | "Concluído";
+  }
+
+  const { mockSolicitations, mockSurveys } = useMockData();
+
   return (
     <div className="w-full min-h-screen flex justify-center items-center bg-[#F5F6F8] relative">
       <NewSolicitationBox
@@ -135,19 +158,36 @@ export default function HomePage() {
         router={router}
       />
 
-      <div className="w-[630px] h-full flex flex-col gap-y-2 py-4">
-        <FastCreation />
-        <div className="w-full flex flex-col gap-y-4">
-          <SolicitationBox
-            title="Botão do elevador com defeito"
-            text="Defeito no botão x do elevador do prédio y"
-            date="20/09/2025"
-          />
-          <SurveyBox />
+      <div className="w-full h-full flex justify-center pl-[350px]">
+        <div className="w-[630px] h-full flex flex-col gap-y-2 py-4">
+          <FastCreation />
+          <div className="w-full flex flex-col gap-y-4">
+            {mockSolicitations.map((solicitation: Solicitation) => (
+              <SolicitationBox
+                id={solicitation.id}
+                key={solicitation.id}
+                title={solicitation.title}
+                text={solicitation.text}
+                date={solicitation.date}
+                tags={solicitation.tags}
+                residentName={solicitation.residentName}
+                residentPlace={solicitation.residentPlace}
+                place={solicitation.place}
+                status={solicitation.status}
+              />
+            ))}
+            {mockSurveys.map((survey: Survey) => (
+              <SurveyBox
+                key={survey.id}
+                id={survey.id}
+                title={survey.title}
+                options={survey.options}
+              />
+            ))}
+            <RequestBox type="object" title="Furadeira" description="Preciso de uma furadeira emprestada para parafusar uma cortina na minha cozinha!" days={0} />
 
-          <RequestBox type="object" title="Furadeira" description="Preciso de uma furadeira emprestada para parafusar uma cortina na minha cozinha!" days={0} />
-
-          <RequestBox type="service" title="Mecânico" description="Alguém poderia me recomendar um mecânico de confiança, para fazer uma revisão no meu carro essa semana?" days={0} />
+            <RequestBox type="service" title="Mecânico" description="Alguém poderia me recomendar um mecânico de confiança, para fazer uma revisão no meu carro essa semana?" days={0} />
+          </div>
         </div>
       </div>
     </div>

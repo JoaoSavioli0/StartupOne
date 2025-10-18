@@ -8,6 +8,7 @@ import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
 import { useRouter } from "next/router";
+import NotificationsBox from "./notificationsBox";
 
 interface SideBarProps {
   onOpenSolicitation: (type: number, header: string) => void;
@@ -22,12 +23,9 @@ export default function SideBarComponent({
 }: SideBarProps) {
   return (
     <div className="h-screen w-[350px] fixed start-0 top-0 border-r border-gray-300 bg-gray-50 flex flex-col items-center p-3">
-      <button className="rounded-full transition-colors duration-150 size-[35px] bg-primary text-white cursor-pointer absolute top-[20px] end-[20px] z-[100]">
-        <i className="p-overlay-badge flex items-center justify-center">
-          <BellIcon size={22} weight="fill" />
-          <Badge value="2" severity="danger"></Badge>
-        </i>
-      </button>
+      <div className="absolute top-[20px] end-[20px] z-[100]">
+        <NotificationsBox />
+      </div>
 
       <div className="flex p-3 w-full gap-x-2 relative">
         <div className="size-[55px] rounded-full bg-gray-200 shrink-0"></div>
@@ -80,6 +78,13 @@ export default function SideBarComponent({
             style={{ fontSize: "1.2rem" }}
           ></i>
           <p className="">Pedir objeto</p>
+        </button>
+        <button onClick={() => onOpenSolicitation(4, "Nova enquete")}>
+          <i
+            className="pi pi-align-left text-primary shrink-0"
+            style={{ fontSize: "1.2rem" }}
+          ></i>
+          <p className="">Criar enquete</p>
         </button>
         <button onClick={() => onOpenBooking(0)}>
           <i
