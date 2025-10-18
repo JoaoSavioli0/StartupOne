@@ -10,7 +10,9 @@ import {
 } from "@phosphor-icons/react";
 import { Button } from "primereact/button";
 import { RadioButton } from "primereact/radiobutton";
+import { Toast } from "primereact/toast";
 import { useState } from "react";
+import { calcAge } from "@/utils/date";
 
 interface SolicitationBoxProps {
   id: number;
@@ -19,9 +21,7 @@ interface SolicitationBoxProps {
   place: string;
   date: string;
   tags?: string[];
-  residentName: string;
-  residentAvatarUrl?: string;
-  residentPlace: string;
+  userData: { id: number, name: string, place: string }
   status: "Pendente" | "Em andamento" | "Concluído";
 }
 
@@ -31,12 +31,12 @@ export default function SolicitationBoxComponent({
   text,
   date,
   tags = [],
-  residentName,
-  residentAvatarUrl,
-  residentPlace,
+  userData,
   place,
   status,
 }: SolicitationBoxProps) {
+
+
   return (
     <div className="w-full rounded-lg p-3 bg-white flex flex-col relative shadow-md">
       <div className="absolute top-[15px] end-[15px] rounded-full p-[5px] hover:bg-zinc-100 transition-colors duration-200 cursor-pointer">
@@ -51,8 +51,8 @@ export default function SolicitationBoxComponent({
       <div className="flex gap-x-2">
         <div className="size-[35px] rounded-full bg-gray-200"></div>
         <div className="flex flex-col">
-          <p className="font-semibold text-sm">{residentName}</p>
-          <p className="text-gray-600 text-xs">{residentPlace}</p>
+          <p className="font-semibold text-sm">{userData.name}</p>
+          <p className="text-gray-600 text-xs">{userData.place}</p>
         </div>
       </div>
 
@@ -76,7 +76,7 @@ export default function SolicitationBoxComponent({
         </div>
         <div className="flex text-gray-500 items-center gap-x-1">
           <ClockIcon size={14} />
-          <p className="text-[13px]">Há 43 minutos</p>
+          <p className="text-[13px]">{calcAge(date)}</p>
         </div>
       </div>
       <p className="mt-4">{text}</p>

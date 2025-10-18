@@ -12,7 +12,7 @@ import { BookingInfo } from "../models/condoClasses";
 import { useRouter } from "next/navigation";
 import SurveyBox from "@/components/surveyBox";
 import RequestBox from "@/components/requestBox";
-import { MockDataContext } from "@/context/MockDataContext";
+import { feedItem, MockDataContext } from "@/context/MockDataContext";
 
 export default function HomePage() {
   const router = useRouter();
@@ -115,7 +115,7 @@ export default function HomePage() {
   class Survey {
     id!: number;
     title!: string;
-    options!: { text: string; value: number; votes: number }[];
+    options!: { label: string; value: number; votes: number }[];
   }
   class Solicitation {
     id!: number;
@@ -130,7 +130,7 @@ export default function HomePage() {
     status!: "Pendente" | "Em andamento" | "Concluído";
   }
 
-  const { mockSolicitations, mockSurveys } = useMockData();
+  const { mockSolicitations, mockSurveys, sortedFeed } = useMockData();
 
   return (
     <div className="w-full min-h-screen flex justify-center items-center bg-[#F5F6F8] relative">
@@ -162,31 +162,33 @@ export default function HomePage() {
         <div className="w-[630px] h-full flex flex-col gap-y-2 py-4">
           <FastCreation />
           <div className="w-full flex flex-col gap-y-4">
-            {mockSolicitations.map((solicitation: Solicitation) => (
-              <SolicitationBox
-                id={solicitation.id}
-                key={solicitation.id}
-                title={solicitation.title}
-                text={solicitation.text}
-                date={solicitation.date}
-                tags={solicitation.tags}
-                residentName={solicitation.residentName}
-                residentPlace={solicitation.residentPlace}
-                place={solicitation.place}
-                status={solicitation.status}
-              />
-            ))}
-            {mockSurveys.map((survey: Survey) => (
-              <SurveyBox
-                key={survey.id}
-                id={survey.id}
-                title={survey.title}
-                options={survey.options}
-              />
-            ))}
-            <RequestBox type="object" title="Furadeira" description="Preciso de uma furadeira emprestada para parafusar uma cortina na minha cozinha!" days={0} />
-
-            <RequestBox type="service" title="Mecânico" description="Alguém poderia me recomendar um mecânico de confiança, para fazer uma revisão no meu carro essa semana?" days={0} />
+            {sortedFeed.map((item: feedItem) => {
+              switch (item.type) {
+                case "solicitation":
+                  return (
+                    <SolicitationBox
+                      key={`sol-${item.id}`}
+                      {...item.data}
+                    />
+                  );
+                case "survey":
+                  return (
+                    <SurveyBox
+                      key={`surv-${item.id}`}
+                      {...item.data}
+                    />
+                  );
+                case "request":
+                  return (
+                    <RequestBox
+                      key={`req-${item.id}`}
+                      {...item.data}
+                    />
+                  );
+                default:
+                  return null;
+              }
+            })}
           </div>
         </div>
       </div>

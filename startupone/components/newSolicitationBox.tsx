@@ -73,7 +73,7 @@ export default function NewSolicitationBox({
   inheritedTitle,
   setStep,
 }: NewSolicitationProps) {
-  const { addSolicitation, addSurvey } = useContext(MockDataContext) as any;
+  const { addSolicitation, addSurvey, loggedUser, showToast } = useContext(MockDataContext) as any;
 
   const [itemRequest, setItemRequest] = useState({
     itemName: "",
@@ -119,12 +119,10 @@ export default function NewSolicitationBox({
   };
 
   const closeBox = () => {
-    setTitleText("");
-    setDescriptionText("");
-    setSelectedTags([]);
+    resetSolicitation()
+    resetSurvey()
     setItemRequest({ itemName: "", period: 1, days: "" });
     setJobRequest({ occupation: "", description: "" });
-    setNewSurvey({ title: "", options: [] });
     onClose();
   };
 
@@ -140,6 +138,7 @@ export default function NewSolicitationBox({
     register: registerSolicitation,
     handleSubmit: handleNewSolicitation,
     formState: { errors: errorsSolicitation },
+    reset: resetSolicitation
   } = useForm<NewSolicitation>({
     resolver: zodResolver(newSolicitationSchema),
     defaultValues: {
@@ -155,11 +154,12 @@ export default function NewSolicitationBox({
     register: registerSurvey,
     handleSubmit: handleNewSurvey,
     formState: { errors: errorsSurvey },
+    reset: resetSurvey
   } = useForm<NewSurvey>({
     resolver: zodResolver(newSurveySchema),
     defaultValues: {
       title: "",
-      options: [{ label: "", value: 1 }],
+      options: [{ label: "", value: 1 }, { label: "", value: 2 }],
     },
   });
 
@@ -179,23 +179,24 @@ export default function NewSolicitationBox({
       title: data.title,
       text: data.description,
       tags: data.tags.map((tag) => tag.name) || [],
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toISOString(),
       place: "Prédio X",
-      residentName: "João Pedro",
-      residentAvatarUrl: "",
-      residentPlace: "Apto 101",
+      userData: { id: loggedUser.id, name: loggedUser.name, place: loggedUser.place },
       status: "Pendente",
     });
+    showToast({ title: "Sucesso", text: "Solicitação criada com sucesso", duration: 6000, type: "success" })
     closeBox();
   };
 
   const onSubmitNewSurvey = (data: NewSurvey) => {
-    console.log(data);
-    // addSurvey({
-    //   title: data.title,
-    //   options: data.options,
-    // });
-    // closeBox();
+    addSurvey({
+      title: data.title,
+      options: data.options,
+      userData: { id: loggedUser.id, name: loggedUser.name, place: loggedUser.place },
+      date: new Date().toISOString(),
+    });
+    showToast({ title: "Sucesso", text: "Pedido criado com sucesso", duration: 6000, type: "success" })
+    closeBox();
   };
 
   return (
@@ -423,7 +424,7 @@ export default function NewSolicitationBox({
             </form>
           )}
 
-          {/* Etapa 2 Reclamação*/}
+          {/* Etapa 2 Solicitação*/}
           {inheritedType == 2 && inheritedStep == 2 && (
             <form
               onSubmit={handleNewSolicitation(onSubmitNewSolicitation)}
@@ -432,9 +433,7 @@ export default function NewSolicitationBox({
               <FloatLabel>
                 <InputText
                   id="item"
-                  value={titleText}
                   {...registerSolicitation("title")}
-                  onChange={(e) => setTitleText(e.target.value)}
                   className="w-full"
                 />
                 <label htmlFor="item">Título</label>
@@ -443,9 +442,7 @@ export default function NewSolicitationBox({
               <FloatLabel>
                 <InputTextarea
                   id="description"
-                  value={descriptionText}
                   {...registerSolicitation("description")}
-                  onChange={(e) => setDescriptionText(e.target.value)}
                   className="w-full"
                   autoResize
                   maxLength={250}

@@ -58,6 +58,19 @@ export default function SideBarComponent({
           ></i>
           <p className="">Minhas solicitações</p>
         </button>
+        <button>
+          <i
+            className="pi pi-calendar text-primary shrink-0"
+            style={{ fontSize: "1.2rem" }}
+          ></i>
+          <p className="">Meus agendamentos</p>
+        </button>
+      </div>
+      <div className="border-b border-gray-300 w-[80%] my-2"></div>
+
+
+      <div className="w-full flex flex-col gap-y-1
+            *:h-[50px] *:w-full *:flex *:items-center *:gap-x-3 *:rounded-lg *:transition-colors *:duration-150 *:hover:bg-gray-200 *:p-4 *:cursor-pointer">
         <button onClick={() => onOpenSolicitation(2, "Nova solicitação")}>
           <i
             className="pi pi-plus text-primary shrink-0"

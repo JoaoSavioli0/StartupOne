@@ -1,3 +1,4 @@
+import { calcAge } from "@/utils/date";
 import { CircleIcon, ClockIcon } from "@phosphor-icons/react";
 import { Avatar } from "primereact/avatar";
 import { AvatarGroup } from "primereact/avatargroup";
@@ -10,10 +11,12 @@ import { useState } from "react";
 interface SurveyBoxProps {
   id: number;
   title: string;
-  options: { text: string; value: number; votes: number }[];
+  date: string;
+  options: { label: string; value: number; votes: number }[];
+  userData: { id: number, name: string, place: string, avatar: string }
 }
 
-export default function SurveyBox({ id, title, options }: SurveyBoxProps) {
+export default function SurveyBox({ id, title, date, options, userData }: SurveyBoxProps) {
   const [votedOption, setVotedOption] = useState<number | null>(null);
 
   const totalVotes = options.reduce((acc, option) => acc + option.votes, 0);
@@ -36,15 +39,15 @@ export default function SurveyBox({ id, title, options }: SurveyBoxProps) {
       <div className="flex gap-x-2">
         <div className="size-[35px] rounded-full bg-gray-200"></div>
         <div className="flex flex-col">
-          <p className="font-semibold text-sm">João Pedro</p>
-          <p className="text-gray-600 text-xs">Apto 101</p>
+          <p className="font-semibold text-sm">{userData.name}</p>
+          <p className="text-gray-600 text-xs">{userData.place}</p>
         </div>
       </div>
       <div className="w-full py-4">
         <h1 className="text-lg font-semibold">{title}</h1>
         <div className="flex text-gray-500 items-center gap-x-1">
           <ClockIcon size={14} />
-          <p className="text-[13px]">Há 38 minutos</p>
+          <p className="text-[13px]">{calcAge(date)}</p>
           <CircleIcon size={4} weight="fill" />
           <p className="text-[13px]">Termina em 3 dias</p>
         </div>
@@ -52,28 +55,30 @@ export default function SurveyBox({ id, title, options }: SurveyBoxProps) {
           <p className="text-sm ml-1">
             <span className="font-medium">{totalVotes}</span> votos
           </p>
-          <AvatarGroup className="gap-x-1.5">
-            <Avatar
-              className="!size-[26px]"
-              image="/images/perfil.png"
-              shape="circle"
-            />
-            <Avatar
-              className="!size-[26px]"
-              image="/images/perfil_2.png"
-              shape="circle"
-            />
-            <Avatar
-              className="!size-[26px]"
-              image="/images/perfil_3.png"
-              shape="circle"
-            />
-            <Avatar
-              className="!size-[26px] !text-[10px]"
-              label={"+" + (totalVotes - 3).toString()}
-              shape="circle"
-            />
-          </AvatarGroup>
+          {totalVotes > 0 &&
+            <AvatarGroup className="gap-x-1.5">
+              <Avatar
+                className="!size-[26px]"
+                image="/images/perfil.png"
+                shape="circle"
+              />
+              <Avatar
+                className="!size-[26px]"
+                image="/images/perfil_2.png"
+                shape="circle"
+              />
+              <Avatar
+                className="!size-[26px]"
+                image="/images/perfil_3.png"
+                shape="circle"
+              />
+              <Avatar
+                className="!size-[26px] !text-[10px]"
+                label={"+" + (totalVotes - 3).toString()}
+                shape="circle"
+              />
+            </AvatarGroup>
+          }
         </div>
       </div>
       <div className="flex flex-col gap-y-2">
@@ -92,11 +97,10 @@ export default function SurveyBox({ id, title, options }: SurveyBoxProps) {
               />
               <label
                 htmlFor={`option-${option.value}`}
-                className={`ml-2 font-medium pointer-events-none text-zinc-600 ${
-                  votedOption == option.value ? "text-zinc-900" : ""
-                }`}
+                className={`ml-2 font-medium pointer-events-none text-zinc-600 ${votedOption == option.value ? "text-zinc-900" : ""
+                  }`}
               >
-                {option.text}
+                {option.label}
               </label>
             </div>
             {votedOption && (

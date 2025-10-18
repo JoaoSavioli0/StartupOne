@@ -1,15 +1,18 @@
+import { calcAge } from "@/utils/date";
 import { ChatCircleIcon, ClockIcon, HandHeartIcon } from "@phosphor-icons/react";
 import { Button } from "primereact/button";
 import { deserialize } from "v8";
 
 interface RequestProps {
-  type: string,
+  type: "object" | "service",
+  userData: { id: number, name: string, place: string }
   title: string,
+  date: string;
   description: string,
   days: number,
 }
 
-export default function RequestBox({ type, title, description, days }: RequestProps) {
+export default function RequestBox({ type, userData, title, date, description, days }: RequestProps) {
 
   return (
     <div className="w-full rounded-lg p-3 bg-white flex flex-col relative shadow-md">
@@ -25,8 +28,8 @@ export default function RequestBox({ type, title, description, days }: RequestPr
       <div className="flex gap-x-2">
         <div className="size-[35px] rounded-full bg-gray-200"></div>
         <div className="flex flex-col">
-          <p className="font-semibold text-sm">João Pedro</p>
-          <p className="text-gray-600 text-xs">Apto 101</p>
+          <p className="font-semibold text-sm">{userData.name}</p>
+          <p className="text-gray-600 text-xs">{userData.place}</p>
         </div>
       </div>
       <div className="pt-4 flex gap-x-2 items-center">
@@ -40,7 +43,7 @@ export default function RequestBox({ type, title, description, days }: RequestPr
 
       <div className="flex text-gray-500 items-center gap-x-1">
         <ClockIcon size={14} />
-        <p className="text-[13px]">Há 38 minutos</p>
+        <p className="text-[13px]">{calcAge(date)}</p>
       </div>
 
       <p className="mt-4">{description}</p>

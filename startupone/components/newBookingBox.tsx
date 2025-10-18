@@ -1,6 +1,6 @@
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import SelectionButton from "./sectionButton";
 import {
   CaretRightIcon,
@@ -13,6 +13,8 @@ import useEmblaCarousel from "embla-carousel-react";
 import { FloatLabel } from "primereact/floatlabel";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
+import { MockDataContext } from "@/context/MockDataContext";
+import { title } from "process";
 
 interface NewBookingProps {
   isOpen: boolean;
@@ -32,6 +34,8 @@ export default function NewBookingBoxComponent({
   setPlaceId,
 }: NewBookingProps) {
   const [emblaRef] = useEmblaCarousel({ dragFree: true });
+
+  const { showToast } = useContext(MockDataContext) as any
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<BookingInfo | null>(null);
@@ -179,6 +183,11 @@ export default function NewBookingBoxComponent({
     setStep(newStep);
   };
 
+  const handleSubmit = () => {
+    showToast({ title: "Sucesso", text: "Solicitação de agendamento criada com sucesso", duration: 6000, type: "success" })
+    onClose()
+  }
+
   return (
     <div>
       <Dialog
@@ -265,11 +274,10 @@ export default function NewBookingBoxComponent({
                       <button
                         key={date.toISOString()}
                         onClick={() => setSelectedDate(date)}
-                        className={`px-2 py-0.5 text-sm rounded-full  cursor-pointer ${
-                          isSelected
-                            ? "bg-blue-600 text-white"
-                            : "bg-gray-100 text-gray-500"
-                        }`}
+                        className={`px-2 py-0.5 text-sm rounded-full  cursor-pointer ${isSelected
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-100 text-gray-500"
+                          }`}
                       >
                         <span className="font-light">{dayName}</span>
                         <span className="ml-1 font-medium">{dayNumber}</span>
@@ -356,6 +364,8 @@ export default function NewBookingBoxComponent({
                   </div>
                   <Button
                     label="Agendar"
+                    type="button"
+                    onClick={handleSubmit}
                     className="!bg-sky-[#6366F1] w-full"
                   />
                 </form>
