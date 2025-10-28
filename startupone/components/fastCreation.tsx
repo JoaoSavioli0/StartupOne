@@ -2,7 +2,7 @@ import { Button } from "primereact/button";
 
 export default function FastCreationComponent() {
   return (
-    <div className="bg-white rounded-lg p-4 flex flex-col gap-3 shadow-md relative">
+    <div className="bg-white rounded-lg p-4 flex flex-col gap-3 shadow-xs relative">
       <div className="flex items-start gap-3">
         <div className="size-[40px] rounded-full bg-gray-200"></div>
         <div className="flex flex-col">

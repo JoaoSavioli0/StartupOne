@@ -13,10 +13,16 @@ interface SurveyBoxProps {
   title: string;
   date: string;
   options: { label: string; value: number; votes: number }[];
-  userData: { id: number, name: string, place: string, avatar: string }
+  userData: { id: number; name: string; place: string; avatar: string };
 }
 
-export default function SurveyBox({ id, title, date, options, userData }: SurveyBoxProps) {
+export default function SurveyBox({
+  id,
+  title,
+  date,
+  options,
+  userData,
+}: SurveyBoxProps) {
   const [votedOption, setVotedOption] = useState<number | null>(null);
 
   const totalVotes = options.reduce((acc, option) => acc + option.votes, 0);
@@ -26,7 +32,7 @@ export default function SurveyBox({ id, title, date, options, userData }: Survey
   };
 
   return (
-    <div className="w-full rounded-lg p-3 bg-white flex flex-col relative shadow-md">
+    <div className="w-full rounded-lg p-3 bg-white flex flex-col relative shadow-xs">
       <div className="absolute top-[15px] end-[15px] rounded-full p-[5px] hover:bg-zinc-100 transition-colors duration-200 cursor-pointer">
         <Button
           icon="pi pi-ellipsis-v"
@@ -55,7 +61,7 @@ export default function SurveyBox({ id, title, date, options, userData }: Survey
           <p className="text-sm ml-1">
             <span className="font-medium">{totalVotes}</span> votos
           </p>
-          {totalVotes > 0 &&
+          {totalVotes > 0 && (
             <AvatarGroup className="gap-x-1.5">
               <Avatar
                 className="!size-[26px]"
@@ -78,7 +84,7 @@ export default function SurveyBox({ id, title, date, options, userData }: Survey
                 shape="circle"
               />
             </AvatarGroup>
-          }
+          )}
         </div>
       </div>
       <div className="flex flex-col gap-y-2">
@@ -97,8 +103,9 @@ export default function SurveyBox({ id, title, date, options, userData }: Survey
               />
               <label
                 htmlFor={`option-${option.value}`}
-                className={`ml-2 font-medium pointer-events-none text-zinc-600 ${votedOption == option.value ? "text-zinc-900" : ""
-                  }`}
+                className={`ml-2 font-medium pointer-events-none text-zinc-600 ${
+                  votedOption == option.value ? "text-zinc-900" : ""
+                }`}
               >
                 {option.label}
               </label>

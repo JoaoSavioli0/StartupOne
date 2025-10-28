@@ -35,7 +35,7 @@ export default function NewBookingBoxComponent({
 }: NewBookingProps) {
   const [emblaRef] = useEmblaCarousel({ dragFree: true });
 
-  const { showToast } = useContext(MockDataContext) as any
+  const { showToast } = useContext(MockDataContext) as any;
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<BookingInfo | null>(null);
@@ -97,7 +97,7 @@ export default function NewBookingBoxComponent({
   const generateTimePeriodsForSelect = (
     start: string,
     end: string,
-    interval: number
+    interval?: number
   ): string[] => {
     const generatedBookableTimes = [];
 
@@ -107,17 +107,27 @@ export default function NewBookingBoxComponent({
     let hour = startHour;
     let minute = startMinute;
 
-    while (hour < endHour || (hour == endHour && minute < endMinute)) {
-      const h = hour.toString().padStart(2, "0");
-      const m = minute.toString().padStart(2, "0");
+    if (!interval) {
+      for (let h = startHour; h < endHour; h++) {
+        if (h == endHour && endMinute == 30) {
+          generatedBookableTimes.push(`${h}:30`);
+        } else {
+          generatedBookableTimes.push(`${h}:00`);
+        }
+      }
+    } else {
+      while (hour < endHour || (hour == endHour && minute < endMinute)) {
+        const h = hour.toString().padStart(2, "0");
+        const m = minute.toString().padStart(2, "0");
 
-      generatedBookableTimes.push(`${h}:${m}`);
+        generatedBookableTimes.push(`${h}:${m}`);
 
-      minute += interval;
+        minute += interval;
 
-      if (minute > 30) {
-        minute -= 60;
-        hour++;
+        if (minute > 30) {
+          minute -= 60;
+          hour++;
+        }
       }
     }
 
@@ -172,8 +182,7 @@ export default function NewBookingBoxComponent({
     setBookingTimeSelectList(
       generateTimePeriodsForSelect(
         selectedPlace?.startWorkingTime,
-        selectedPlace?.stopWorkingTime,
-        30
+        selectedPlace?.stopWorkingTime
       )
     );
     nextStep(3);
@@ -184,9 +193,14 @@ export default function NewBookingBoxComponent({
   };
 
   const handleSubmit = () => {
-    showToast({ title: "Sucesso", text: "Solicitação de agendamento criada com sucesso", duration: 6000, type: "success" })
-    onClose()
-  }
+    showToast({
+      title: "Sucesso",
+      text: "Solicitação de agendamento criada com sucesso",
+      duration: 6000,
+      type: "success",
+    });
+    onClose();
+  };
 
   return (
     <div>
@@ -274,10 +288,11 @@ export default function NewBookingBoxComponent({
                       <button
                         key={date.toISOString()}
                         onClick={() => setSelectedDate(date)}
-                        className={`px-2 py-0.5 text-sm rounded-full  cursor-pointer ${isSelected
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-100 text-gray-500"
-                          }`}
+                        className={`px-2 py-0.5 text-sm rounded-full  cursor-pointer ${
+                          isSelected
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-100 text-gray-500"
+                        }`}
                       >
                         <span className="font-light">{dayName}</span>
                         <span className="ml-1 font-medium">{dayNumber}</span>

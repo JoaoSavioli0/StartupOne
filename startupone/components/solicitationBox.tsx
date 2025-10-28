@@ -19,9 +19,9 @@ interface SolicitationBoxProps {
   title: string;
   text: string;
   place: string;
-  date: string;
+  createdAt: string;
   tags?: string[];
-  userData: { id: number, name: string, place: string }
+  userData: { id: number; name: string; place: string };
   status: "Pendente" | "Em andamento" | "Concluído";
 }
 
@@ -29,16 +29,14 @@ export default function SolicitationBoxComponent({
   id,
   title,
   text,
-  date,
+  createdAt,
   tags = [],
   userData,
   place,
   status,
 }: SolicitationBoxProps) {
-
-
   return (
-    <div className="w-full rounded-lg p-3 bg-white flex flex-col relative shadow-md">
+    <div className="w-full rounded-lg p-3 bg-white flex flex-col relative shadow-xs">
       <div className="absolute top-[15px] end-[15px] rounded-full p-[5px] hover:bg-zinc-100 transition-colors duration-200 cursor-pointer">
         <Button
           icon="pi pi-ellipsis-v"
@@ -76,10 +74,10 @@ export default function SolicitationBoxComponent({
         </div>
         <div className="flex text-gray-500 items-center gap-x-1">
           <ClockIcon size={14} />
-          <p className="text-[13px]">{calcAge(date)}</p>
+          <p className="text-[13px]">{calcAge(createdAt)}</p>
         </div>
       </div>
-      <p className="mt-4">{text}</p>
+      <p className="mt-4 break-words">{text}</p>
 
       <div className="flex h-[400px] w-full my-2 gap-x-1">
         <div className="w-1/2 h-full bg-blue-100 rounded-md"></div>
@@ -89,18 +87,18 @@ export default function SolicitationBoxComponent({
       <div className="w-full flex items-center justify-between h-[35px]">
         <div className="flex h-full gap-x-2">
           <button className="flex gap-x-1.5 items-center h-full rounded-lg border border-gray-300 bg-gray-50 px-3 cursor-pointer transition-colors duration-150 hover:bg-primary hover:text-white">
-            <ArrowUpIcon weight="bold" size={14} />
+            <i className="pi pi-arrow-up" style={{ fontSize: "0.7rem" }}></i>
             <p className="font-medium text-sm">0</p>
           </button>
 
           <button className="h-full rounded-lg flex items-center gap-x-1.5 px-3 cursor-pointer transition-colors duration-150 hover:bg-primary hover:text-white">
-            <ChatCircleIcon size={15} weight="bold" />
+            <i className="pi pi-comment" style={{ fontSize: "0.9rem" }}></i>
             <span className="text-sm font-medium">Comentários (0)</span>
           </button>
         </div>
 
         <div className="h-full items-center flex gap-x-1.5 text-orange-400 px-2">
-          <ClockIcon weight="bold" />
+          <i className="pi pi-clock" style={{ fontSize: "0.9rem" }}></i>
           <p className="text-sm font-medium">Pendente</p>
         </div>
       </div>

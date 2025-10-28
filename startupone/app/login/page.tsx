@@ -37,9 +37,9 @@ export default function LoginPage() {
     address: "",
   });
   const maxBirthDate = getMaxBirthDate();
-  const [emailLogin, setEmailLogin] = useState("");
-  const [senhaLogin, setSenhaLogin] = useState("");
-  const [errorsLogin, setErrorsLogin] = useState<string[]>([]);
+  const [formLogin, setFormLogin] = useState({ email: "", password: "" });
+  const [erroLogin, setErroLogin] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   function confirmCondo() {
     localSet("confirmCondoInfo", condoInfoFound);
@@ -56,28 +56,36 @@ export default function LoginPage() {
   }
 
   function validateLoginInfo() {
-    const erros: string[] = [];
-
     // validação básica de email (regex simples)
     const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!regexEmail.test(emailLogin)) {
-      erros.push("E-mail inválido.");
+    if (!regexEmail.test(formLogin.email)) {
+      return true;
     }
 
     // validação básica de senha
-    if (!senhaLogin || senhaLogin.length < 6) {
-      erros.push("A senha deve ter pelo menos 6 caracteres.");
+    if (!formLogin.password || formLogin.password.length < 6) {
+      return true;
     }
 
-    return erros;
+    return false;
   }
 
-  const handleLoginSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setErrorsLogin(validateLoginInfo());
-    if (validateLoginInfo().length == 0) {
-      console.log("era pra redirecionar");
+
+    setErroLogin(false);
+    setIsLoading(true);
+
+    //adiciona cookie e redireciona
+    await new Promise((r) => setTimeout(r, 2000)); //simulando requisição de login
+
+    setErroLogin(validateLoginInfo());
+
+    if (!validateLoginInfo()) {
+      document.cookie = `communityon_user-token=1; path=/; Secure; SameSite=Strict`;
       router.push("/home");
+    } else {
+      setIsLoading(false);
     }
   };
 
@@ -171,30 +179,51 @@ export default function LoginPage() {
                   />
                 </div>
 
-                <IconField iconPosition="left" className="w-full">
-                  <InputIcon>
-                    <EnvelopeSimpleIcon size={20} />
-                  </InputIcon>
-                  <InputText
-                    placeholder="Email"
-                    className="w-full"
-                    value={emailLogin}
-                    onChange={(e) => setEmailLogin(e.target.value)}
-                  />
-                </IconField>
+                <div>
+                  <IconField iconPosition="left" className="w-full">
+                    <InputIcon>
+                      <EnvelopeSimpleIcon size={20} />
+                    </InputIcon>
+                    <InputText
+                      placeholder="Email"
+                      className="w-full"
+                      invalid={erroLogin}
+                      value={formLogin.email}
+                      onChange={(e) =>
+                        setFormLogin((prev) => ({
+                          ...prev,
+                          email: e.target.value,
+                        }))
+                      }
+                    />
+                  </IconField>
+                </div>
 
-                <IconField iconPosition="left" className="w-full">
-                  <InputIcon>
-                    <LockIcon size={20} />
-                  </InputIcon>
-                  <InputText
-                    type="password"
-                    placeholder="Senha"
-                    className="w-full"
-                    value={senhaLogin}
-                    onChange={(e) => setSenhaLogin(e.target.value)}
-                  />
-                </IconField>
+                <div>
+                  <IconField iconPosition="left" className="w-full">
+                    <InputIcon>
+                      <LockIcon size={20} />
+                    </InputIcon>
+                    <InputText
+                      type="password"
+                      placeholder="Senha"
+                      className="w-full"
+                      invalid={erroLogin}
+                      value={formLogin.password}
+                      onChange={(e) =>
+                        setFormLogin((prev) => ({
+                          ...prev,
+                          password: e.target.value,
+                        }))
+                      }
+                    />
+                  </IconField>
+                  {erroLogin && (
+                    <p className="mt-2 text-xs text-red-600">
+                      Usuário ou senha inválidos.
+                    </p>
+                  )}
+                </div>
 
                 <div className="w-full flex justify-between items-center">
                   <div className="flex items-center">
@@ -214,10 +243,11 @@ export default function LoginPage() {
                 </div>
 
                 <Button
-                  label="Entrar"
+                  label={isLoading ? "" : "Entrar"}
+                  loading={isLoading}
                   severity="info"
                   type="submit"
-                  className="w-full !bg-primary"
+                  className="!w-full !bg-primary !border-primary"
                 />
 
                 <Button
@@ -245,6 +275,7 @@ export default function LoginPage() {
             </div>
           )}
 
+          {/* Registro */}
           {visibleForm == "register" && (
             <div className="w-[80%] h-full flex flex-col justify-center items-center">
               <div className="w-full">

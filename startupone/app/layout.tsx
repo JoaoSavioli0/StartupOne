@@ -10,6 +10,8 @@ import "primeicons/primeicons.css";
 import "primereact/resources/themes/lara-light-indigo/theme.css"; // ou outro tema
 import "primereact/resources/primereact.min.css";
 import { MockDataProvider } from "@/context/MockDataContext";
+import { Sidebar } from "primereact/sidebar";
+import { ClientProvider } from "@/context/ClientContext";
 
 const montserrat = Montserrat({
   weight: ["400", "500", "600", "700", "800", "900"],
@@ -30,7 +32,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${montserrat.className} antialiased`}>
         <PrimeReactProvider>
-          <MockDataProvider>{children}</MockDataProvider>
+          <ClientProvider>
+            <MockDataProvider>{children}</MockDataProvider>
+          </ClientProvider>
         </PrimeReactProvider>
       </body>
     </html>

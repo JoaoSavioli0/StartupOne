@@ -30,6 +30,8 @@ import { MockDataContext } from "@/context/MockDataContext";
 import * as z from "zod";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { watch } from "node:fs";
+import { ClientContext } from "@/context/ClientContext";
 
 interface NewSolicitationProps {
   isOpen: boolean;
@@ -73,7 +75,11 @@ export default function NewSolicitationBox({
   inheritedTitle,
   setStep,
 }: NewSolicitationProps) {
-  const { addSolicitation, addSurvey, loggedUser, showToast } = useContext(MockDataContext) as any;
+  const { addSolicitation, addSurvey, loggedUser } = useContext(
+    MockDataContext
+  ) as any;
+
+  const { showToast } = useContext(ClientContext) as any;
 
   const [itemRequest, setItemRequest] = useState({
     itemName: "",
@@ -96,16 +102,15 @@ export default function NewSolicitationBox({
     { name: "Por um período", value: 2 },
   ];
 
-  const [titleText, setTitleText] = useState("");
-  const [descriptionText, setDescriptionText] = useState("");
-  const [selectedTags, setSelectedTags] = useState([]);
-
   const nextStep = (newStep: number) => {
     setStep(newStep);
   };
 
   const validSolicitation = (): boolean => {
-    return descriptionText.length > 0 && titleText.length > 0;
+    return (
+      watchSolicitation("title", "").length > 0 &&
+      watchSolicitation("description", "").length > 0
+    );
   };
 
   const addSurveyOption = () => {
@@ -119,8 +124,8 @@ export default function NewSolicitationBox({
   };
 
   const closeBox = () => {
-    resetSolicitation()
-    resetSurvey()
+    resetSolicitation();
+    resetSurvey();
     setItemRequest({ itemName: "", period: 1, days: "" });
     setJobRequest({ occupation: "", description: "" });
     onClose();
@@ -138,7 +143,8 @@ export default function NewSolicitationBox({
     register: registerSolicitation,
     handleSubmit: handleNewSolicitation,
     formState: { errors: errorsSolicitation },
-    reset: resetSolicitation
+    reset: resetSolicitation,
+    watch: watchSolicitation,
   } = useForm<NewSolicitation>({
     resolver: zodResolver(newSolicitationSchema),
     defaultValues: {
@@ -154,12 +160,16 @@ export default function NewSolicitationBox({
     register: registerSurvey,
     handleSubmit: handleNewSurvey,
     formState: { errors: errorsSurvey },
-    reset: resetSurvey
+    reset: resetSurvey,
+    watch: watchSurvey,
   } = useForm<NewSurvey>({
     resolver: zodResolver(newSurveySchema),
     defaultValues: {
       title: "",
-      options: [{ label: "", value: 1 }, { label: "", value: 2 }],
+      options: [
+        { label: "", value: 1 },
+        { label: "", value: 2 },
+      ],
     },
   });
 
@@ -181,10 +191,19 @@ export default function NewSolicitationBox({
       tags: data.tags.map((tag) => tag.name) || [],
       date: new Date().toISOString(),
       place: "Prédio X",
-      userData: { id: loggedUser.id, name: loggedUser.name, place: loggedUser.place },
+      userData: {
+        id: loggedUser.id,
+        name: loggedUser.name,
+        place: loggedUser.place,
+      },
       status: "Pendente",
     });
-    showToast({ title: "Sucesso", text: "Solicitação criada com sucesso", duration: 6000, type: "success" })
+    showToast({
+      title: "Sucesso",
+      text: "Solicitação criada com sucesso",
+      duration: 6000,
+      type: "success",
+    });
     closeBox();
   };
 
@@ -192,10 +211,19 @@ export default function NewSolicitationBox({
     addSurvey({
       title: data.title,
       options: data.options,
-      userData: { id: loggedUser.id, name: loggedUser.name, place: loggedUser.place },
+      userData: {
+        id: loggedUser.id,
+        name: loggedUser.name,
+        place: loggedUser.place,
+      },
       date: new Date().toISOString(),
     });
-    showToast({ title: "Sucesso", text: "Pedido criado com sucesso", duration: 6000, type: "success" })
+    showToast({
+      title: "Sucesso",
+      text: "Pedido criado com sucesso",
+      duration: 6000,
+      type: "success",
+    });
     closeBox();
   };
 
@@ -435,8 +463,14 @@ export default function NewSolicitationBox({
                   id="item"
                   {...registerSolicitation("title")}
                   className="w-full"
+                  maxLength={40}
                 />
-                <label htmlFor="item">Título</label>
+                <label htmlFor="item">
+                  Título
+                  <span className="rounded-md bg-gray-100 px-1 ml-2">
+                    {watchSolicitation("title", "").length}/40
+                  </span>
+                </label>
               </FloatLabel>
 
               <FloatLabel>
@@ -452,7 +486,7 @@ export default function NewSolicitationBox({
                 <label htmlFor="description">
                   Descreva a reclamação
                   <span className="rounded-md bg-gray-100 px-1 ml-2">
-                    {descriptionText.length}/250
+                    {watchSolicitation("description", "").length}/250
                   </span>
                 </label>
               </FloatLabel>
@@ -466,7 +500,7 @@ export default function NewSolicitationBox({
                       value={field.value}
                       onChange={(e) => {
                         if (e.value.length <= 6) {
-                          setSelectedTags(e.value);
+                          // setSelectedTags(e.value);
                           field.onChange(e.value);
                         }
                       }}
@@ -481,7 +515,7 @@ export default function NewSolicitationBox({
                     <label htmlFor="item">
                       Gêneros da solicitação
                       <span className="rounded-md bg-gray-100 px-1 ml-2">
-                        {selectedTags?.length}/6
+                        {watchSolicitation("tags", []).length}/6
                       </span>
                     </label>
                   </FloatLabel>

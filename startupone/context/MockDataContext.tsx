@@ -1,67 +1,74 @@
 "use client";
 
 import { Toast } from "primereact/toast";
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 export const MockDataContext = createContext({});
 
-export type feedItem = {
+export type FeedItem = {
   id: number;
-  createdAt: string;
+  createdAt: Date;
   type: "survey" | "solicitation" | "request";
+  label: string;
   data: any;
-}
+};
 
-export type toastProps = {
-  type: "success" | "info" | "warn" | "error" | "secondary" | "contrast" | undefined;
-  title: string;
-  text: string;
-  duration?: number
-}
-
-class Solicitation {
+export class Solicitation {
   id!: number;
   title!: string;
   text!: string;
   place!: string;
-  date!: string;
+  createdAt!: Date;
   tags?: string[];
-  userData!: { id: number, name: string, place: string, avatar?: string }
+  userData!: { id: number; name: string; place: string; avatar?: string };
   status!: "Pendente" | "Em andamento" | "Concluído";
 }
 
-class Survey {
+export class Survey {
   id!: number;
-  userData!: { id: number, name: string, place: string, avatar?: string }
+  userData!: { id: number; name: string; place: string; avatar?: string };
   title!: string;
-  date!: string;
+  date!: Date;
   options!: { label: string; value: number; votes: number }[];
 }
 
-class Request {
+export class Request {
   id!: number;
-  userData!: { id: number, name: string, place: string, avatar?: string }
+  userData!: { id: number; name: string; place: string; avatar?: string };
   title!: string;
   type!: "object" | "service";
   description?: string;
   days?: number = 0;
-  date!: string;
+  status: string = "Aberto";
+  closedAt?: Date;
+  createdAt!: Date;
 }
 
 export function MockDataProvider({ children }: { children: React.ReactNode }) {
   const loggedUser = {
     id: 1,
     name: "João Savioli",
+    condo: "Chácaras Flórida",
     place: "Apto 101",
-    avatar: ""
-  }
+    phone: "11978521152",
+    email: "joaopedroolisavioli@gmail.com",
+    age: "21",
+    avatar: "",
+  };
 
   const initialSolicitations: Solicitation[] = [
     {
       id: 1,
       title: "Botão do elevador com defeito",
       text: "O botão do elevador do prédio X está com defeito.",
-      date: "2023-03-15",
+      createdAt: new Date("2025-08-15"),
       place: "Prédio X, apto 284",
       tags: ["Manutenção", "Urgente"],
       userData: { id: 3, name: "Thiado Medeiros", place: "Apto 461" },
@@ -71,11 +78,31 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
       id: 2,
       title: "Solicitação de manutenção",
       text: "Preciso de manutenção na luz do corredor.",
-      date: "2023-03-16",
+      createdAt: new Date("2025-01-04"),
       place: "Prédio Y",
       tags: ["Manutenção"],
       userData: { id: 4, name: "Gustavo Mioto", place: "Apto 315" },
       status: "Em andamento",
+    },
+    {
+      id: 3,
+      title: "Vazamento no banheiro",
+      text: "Há um vazamento constante no banheiro do apartamento 101.",
+      createdAt: new Date("2025-03-05"),
+      place: "Prédio X, apto 101",
+      tags: ["Manutenção", "Alerta"],
+      userData: { id: 1, name: "João Savioli", place: "apto 101" },
+      status: "Pendente",
+    },
+    {
+      id: 4,
+      title: "Luz do corredor apagada",
+      text: "A luz do corredor do 1º andar não está funcionando.",
+      createdAt: new Date("2025-03-17"),
+      place: "Prédio X, corredor 1º andar",
+      tags: ["Iluminação", "Baixa Prioridade"],
+      userData: { id: 1, name: "João Savioli", place: "apto 101" },
+      status: "Concluído",
     },
   ];
 
@@ -84,7 +111,7 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
       id: 1,
       userData: { id: 2, name: "Thiago Moreira", place: "Apto 201" },
       title: "Qual melhoria você gostaria de ver no condomínio?",
-      date: "2023-03-16",
+      date: new Date("2023-03-16"),
       options: [
         {
           value: 1,
@@ -105,42 +132,56 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
     {
       id: 1,
       title: "Preciso de uma furadeira",
-      date: "2023-03-16",
+      createdAt: new Date("2025-03-16"),
       type: "object",
-      userData: { id: 5, name: "Gustavo Mioto", place: "Apto 109" }
+      userData: { id: 5, name: "Gustavo Mioto", place: "Apto 109" },
+      status: "Pendente",
+    },
+    {
+      id: 2,
+      title: "Preciso de uma extensão elétrica",
+      createdAt: new Date("2025-09-18"),
+      type: "object",
+      userData: { id: 1, name: "João Savioli", place: "apto 101" },
+      status: "Pendente",
     },
   ];
 
-  const [mockSolicitations, setMockSolicitations] = useState(initialSolicitations)
-  const [mockRequests, setMockRequests] = useState(initialRequests)
-  const [mockSurveys, setMockSurveys] = useState(initialSurveys)
+  const [mockSolicitations, setMockSolicitations] =
+    useState(initialSolicitations);
+  const [mockRequests, setMockRequests] = useState(initialRequests);
+  const [mockSurveys, setMockSurveys] = useState(initialSurveys);
 
-  const feedItems = useMemo(() => {
+  const feedItems: FeedItem[] = useMemo(() => {
     const items = [
-      ...mockSolicitations.map(s => ({
+      ...mockSolicitations.map((s) => ({
         id: s.id,
-        createdAt: s.date,
+        createdAt: s.createdAt,
+        label: s.title + s.text,
         type: "solicitation" as const,
-        data: s
+        data: s,
       })),
-      ...mockSurveys.map(s => ({
+      ...mockSurveys.map((s) => ({
         id: s.id,
         createdAt: s.date,
+        label: s.title,
         type: "survey" as const,
-        data: s
+        data: s,
       })),
-      ...mockRequests.map(r => ({
+      ...mockRequests.map((r) => ({
         id: r.id,
-        createdAt: r.date,
+        createdAt: r.createdAt,
+        label: r.title + r.description,
         type: "request" as const,
-        data: r
-      }))
-    ]
+        data: r,
+      })),
+    ];
 
     return items.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
-  }, [mockRequests, mockSolicitations, mockSurveys])
+  }, [mockRequests, mockSolicitations, mockSurveys]);
 
   useEffect(() => {
     console.log("Alterou: ", mockSolicitations);
@@ -148,7 +189,7 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
 
   const addSolicitation = (newSolicitation: Solicitation) => {
     newSolicitation.id = mockSolicitations.length + 1;
-    setMockSolicitations((prev) => [...prev, newSolicitation])
+    setMockSolicitations((prev) => [...prev, newSolicitation]);
   };
 
   const editSolicitation = (updatedSolicitation: Solicitation) => {
@@ -162,8 +203,8 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
 
   const addSurvey = (newSurvey: Survey) => {
     newSurvey.id = mockSurveys.length + 1;
-    newSurvey.options = newSurvey.options.map(op => ({ ...op, votes: 0 }))
-    setMockSurveys((prev) => [...prev, newSurvey])
+    newSurvey.options = newSurvey.options.map((op) => ({ ...op, votes: 0 }));
+    setMockSurveys((prev) => [...prev, newSurvey]);
   };
 
   const editSurvey = (updatedSurvey: Survey) => {
@@ -171,13 +212,6 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
     if (index !== -1) {
       mockSurveys[index] = updatedSurvey;
     }
-  };
-
-  const toast = useRef<Toast | null>(null);
-
-  const showToast = ({ type, title, text, duration }: toastProps) => {
-    if (!toast.current) return
-    toast.current?.show({ severity: type, summary: title, detail: text, life: duration });
   };
 
   return (
@@ -191,10 +225,9 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
         editSurvey,
         sortedFeed: feedItems,
         loggedUser,
-        showToast
+        mockRequests,
       }}
     >
-      <Toast ref={toast} position="top-right" />
       {children}
     </MockDataContext.Provider>
   );

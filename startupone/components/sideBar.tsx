@@ -9,6 +9,8 @@ import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
 import { useRouter } from "next/router";
 import NotificationsBox from "./notificationsBox";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 interface SideBarProps {
   onOpenSolicitation: (type: number, header: string) => void;
@@ -21,13 +23,21 @@ export default function SideBarComponent({
   onOpenBooking,
   router,
 }: SideBarProps) {
+  const pathname = usePathname();
+  const [selected, setSelected] = useState(pathname.replace("/", ""));
+
+  const selectItem = (label: string) => {
+    setSelected(label);
+    router.push(`/${label}`);
+  };
+
   return (
     <div className="h-screen w-[350px] fixed start-0 top-0 border-r border-gray-300 bg-gray-50 flex flex-col items-center p-3">
       <div className="absolute top-[20px] end-[20px] z-[100]">
         <NotificationsBox />
       </div>
 
-      <div className="flex p-3 w-full gap-x-2 relative">
+      <div className="flex py-3 w-full gap-x-2 relative">
         <div className="size-[55px] rounded-full bg-gray-200 shrink-0"></div>
         <div className="flex flex-col justify-center w-full">
           <div className="flex items-center gap-x-2">
@@ -40,7 +50,7 @@ export default function SideBarComponent({
         </div>
       </div>
 
-      <div className="w-full p-3">
+      <div className="w-full py-3">
         <IconField iconPosition="left" className="w-full">
           <InputIcon className="pi pi-search"> </InputIcon>
           <InputText placeholder="Pesquisar" className="w-full" />
@@ -49,28 +59,47 @@ export default function SideBarComponent({
 
       <div
         className="w-full flex flex-col gap-y-1
-            *:h-[50px] *:w-full *:flex *:items-center *:gap-x-3 *:rounded-lg *:transition-colors *:duration-150 *:hover:bg-gray-200 *:p-4 *:cursor-pointer"
+            *:h-[50px] *:w-full *:flex *:items-center *:gap-x-3 *:rounded-lg *:transition-colors *:duration-150 *:p-4 *:cursor-pointer"
       >
-        <button>
+        <button
+          onClick={() => selectItem("home")}
+          className={
+            selected === "home"
+              ? "bg-primary text-white font-medium"
+              : "hover:bg-gray-200"
+          }
+        >
           <i
-            className="pi pi-user text-primary shrink-0"
+            className={`pi pi-home shrink-0 ${
+              selected === "home" ? "text-white" : "text-primary"
+            }`}
             style={{ fontSize: "1.2rem" }}
           ></i>
-          <p className="">Minhas solicitações</p>
+          <p className="">Página inicial</p>
         </button>
-        <button>
+        <button
+          onClick={() => selectItem("profile")}
+          className={
+            selected === "profile"
+              ? "bg-primary text-white font-medium"
+              : "hover:bg-gray-200"
+          }
+        >
           <i
-            className="pi pi-calendar text-primary shrink-0"
+            className={`pi pi-user shrink-0 ${
+              selected === "profile" ? "text-white" : "text-primary"
+            }`}
             style={{ fontSize: "1.2rem" }}
           ></i>
-          <p className="">Meus agendamentos</p>
+          <p className="">Perfil</p>
         </button>
       </div>
       <div className="border-b border-gray-300 w-[80%] my-2"></div>
 
-
-      <div className="w-full flex flex-col gap-y-1
-            *:h-[50px] *:w-full *:flex *:items-center *:gap-x-3 *:rounded-lg *:transition-colors *:duration-150 *:hover:bg-gray-200 *:p-4 *:cursor-pointer">
+      <div
+        className="w-full flex flex-col gap-y-1
+            *:h-[50px] *:w-full *:flex *:items-center *:gap-x-3 *:rounded-lg *:transition-colors *:duration-150 *:hover:bg-gray-200 *:p-4 *:cursor-pointer"
+      >
         <button onClick={() => onOpenSolicitation(2, "Nova solicitação")}>
           <i
             className="pi pi-plus text-primary shrink-0"
