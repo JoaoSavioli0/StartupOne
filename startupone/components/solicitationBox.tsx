@@ -75,6 +75,7 @@ export default function SolicitationBoxComponent({
         src={item.itemImageSrc}
         alt={item.alt}
         style={{ width: "100%", display: "block" }}
+
       />
     );
   };
@@ -82,22 +83,24 @@ export default function SolicitationBoxComponent({
   return (
     <div
       className="w-full rounded-lg p-3 bg-white flex flex-col relative shadow-xs cursor-pointer"
-      onClick={router.push(`/solicitation/${id}`)}
+      onClick={() => router.push(`/solicitation/${id}`)}
     >
-      <Galleria
-        ref={galleria}
-        value={images}
-        responsiveOptions={responsiveOptions}
-        numVisible={9}
-        style={{ maxWidth: "50%" }}
-        activeIndex={activeImageIndex}
-        onItemChange={(e) => setActiveImageIndex(e.index)}
-        circular
-        fullScreen
-        showItemNavigators
-        showThumbnails={false}
-        item={itemTemplate}
-      />
+      <div onClick={(e) => e.stopPropagation()}>
+        <Galleria
+          ref={galleria}
+          value={images}
+          responsiveOptions={responsiveOptions}
+          numVisible={9}
+          style={{ maxWidth: "50%" }}
+          activeIndex={activeImageIndex}
+          onItemChange={(e) => setActiveImageIndex(e.index)}
+          circular
+          fullScreen
+          showItemNavigators
+          showThumbnails={false}
+          item={itemTemplate}
+        />
+      </div>
 
       <div className="absolute top-[15px] end-[15px] rounded-full p-[5px] hover:bg-zinc-100 transition-colors duration-200 cursor-pointer">
         <Button
@@ -142,7 +145,7 @@ export default function SolicitationBoxComponent({
       <p className="mt-4 break-words">{text}</p>
 
       {images && images.length > 0 && (
-        <div className="grid grid-cols-2 grid-rows-2 mt-2 h-[400px] w-full gap-1 *:cursor-pointer">
+        <div className="grid grid-cols-2 grid-rows-2 mt-2 h-[400px] w-full gap-1 *:cursor-pointer" onClick={(e) => e.stopPropagation()}>
           {images.slice(0, 3).map((i, index) => (
             <div
               key={`${id}/${index}`}
