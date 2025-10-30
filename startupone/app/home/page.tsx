@@ -12,24 +12,6 @@ import RequestBox from "@/components/requestBox";
 import { FeedItem, MockDataContext } from "@/context/MockDataContext";
 import { ClientContext } from "@/context/ClientContext";
 
-class Survey {
-  id!: number;
-  title!: string;
-  options!: { label: string; value: number; votes: number }[];
-}
-class Solicitation {
-  id!: number;
-  title!: string;
-  text!: string;
-  place!: string;
-  date!: string;
-  tags?: string[];
-  residentName!: string;
-  residentAvatarUrl?: string;
-  residentPlace!: string;
-  status!: "Pendente" | "Em andamento" | "Concluído";
-}
-
 export default function HomePage() {
   useEffect(() => {
     // registra as traduções para pt-BR
@@ -134,29 +116,7 @@ export default function HomePage() {
 
   return (
     <div className="w-full min-h-screen flex justify-center items-center bg-[#F5F6F8] relative">
-      <NewSolicitationBox
-        isOpen={isNewSolicitationOpen}
-        onClose={closeNewSolicitation}
-        inheritedStep={solicitationStep}
-        inheritedTitle={boxHeader}
-        inheritedType={solicitationType}
-        setStep={setSolicitationStep}
-      />
-
-      <NewBookingBoxComponent
-        isOpen={isNewBookingOpen}
-        onClose={closeNewBooking}
-        inheritedStep={bookingStep}
-        placeId={bookingPlaceId}
-        setPlaceId={setBookingPlaceId}
-        setStep={setBookingStep}
-      />
-
-      <SideBar
-        onOpenSolicitation={openNewSolicitation}
-        onOpenBooking={openNewBooking}
-        router={router}
-      />
+      <SideBar />
 
       <div className="w-full h-full flex justify-center pl-[350px]">
         <div className="w-[60%] h-full flex flex-col gap-y-2 py-4">

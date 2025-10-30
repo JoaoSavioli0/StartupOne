@@ -29,14 +29,26 @@ export class Solicitation {
   tags?: string[];
   userData!: { id: number; name: string; place: string; avatar?: string };
   status!: "Pendente" | "Em andamento" | "Concluído";
+  images?: { itemImageSrc: string }[];
 }
 
 export class Survey {
   id!: number;
   userData!: { id: number; name: string; place: string; avatar?: string };
   title!: string;
-  date!: Date;
+  createdAt!: Date;
   options!: { label: string; value: number; votes: number }[];
+}
+
+export class User {
+  id!: number;
+  name!: string;
+  condo?: string;
+  place!: string;
+  phone?: string;
+  email!: string;
+  age?: string;
+  avatar?: string;
 }
 
 export class Request {
@@ -52,7 +64,7 @@ export class Request {
 }
 
 export function MockDataProvider({ children }: { children: React.ReactNode }) {
-  const loggedUser = {
+  const loggedUser: User = {
     id: 1,
     name: "João Savioli",
     condo: "Chácaras Flórida",
@@ -73,6 +85,17 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
       tags: ["Manutenção", "Urgente"],
       userData: { id: 3, name: "Thiado Medeiros", place: "Apto 461" },
       status: "Pendente",
+      images: [
+        {
+          itemImageSrc: "https://picsum.photos/id/1050/800/600",
+        },
+        {
+          itemImageSrc: "https://picsum.photos/id/1051/800/600",
+        },
+        {
+          itemImageSrc: "https://picsum.photos/id/1052/800/600",
+        },
+      ],
     },
     {
       id: 2,
@@ -83,6 +106,14 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
       tags: ["Manutenção"],
       userData: { id: 4, name: "Gustavo Mioto", place: "Apto 315" },
       status: "Em andamento",
+      images: [
+        {
+          itemImageSrc: "https://picsum.photos/id/1044/800/600",
+        },
+        {
+          itemImageSrc: "https://picsum.photos/id/1045/800/600",
+        },
+      ],
     },
     {
       id: 3,
@@ -93,6 +124,20 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
       tags: ["Manutenção", "Alerta"],
       userData: { id: 1, name: "João Savioli", place: "apto 101" },
       status: "Pendente",
+      images: [
+        {
+          itemImageSrc: "https://picsum.photos/id/1031/800/600",
+        },
+        {
+          itemImageSrc: "https://picsum.photos/id/1032/800/600",
+        },
+        {
+          itemImageSrc: "https://picsum.photos/id/1033/800/600",
+        },
+        {
+          itemImageSrc: "https://picsum.photos/id/1045/800/600",
+        },
+      ],
     },
     {
       id: 4,
@@ -103,6 +148,11 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
       tags: ["Iluminação", "Baixa Prioridade"],
       userData: { id: 1, name: "João Savioli", place: "apto 101" },
       status: "Concluído",
+      images: [
+        {
+          itemImageSrc: "https://picsum.photos/id/1025/800/600",
+        },
+      ],
     },
   ];
 
@@ -111,7 +161,7 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
       id: 1,
       userData: { id: 2, name: "Thiago Moreira", place: "Apto 201" },
       title: "Qual melhoria você gostaria de ver no condomínio?",
-      date: new Date("2023-03-16"),
+      createdAt: new Date("2023-03-16"),
       options: [
         {
           value: 1,
@@ -148,7 +198,7 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
   ];
 
   const [mockSolicitations, setMockSolicitations] =
-    useState(initialSolicitations);
+    useState<Solicitation[]>(initialSolicitations);
   const [mockRequests, setMockRequests] = useState(initialRequests);
   const [mockSurveys, setMockSurveys] = useState(initialSurveys);
 
@@ -163,7 +213,7 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
       })),
       ...mockSurveys.map((s) => ({
         id: s.id,
-        createdAt: s.date,
+        createdAt: s.createdAt,
         label: s.title,
         type: "survey" as const,
         data: s,

@@ -189,7 +189,7 @@ export default function NewSolicitationBox({
       title: data.title,
       text: data.description,
       tags: data.tags.map((tag) => tag.name) || [],
-      date: new Date().toISOString(),
+      createdAt: new Date(),
       place: "Prédio X",
       userData: {
         id: loggedUser.id,
@@ -216,7 +216,7 @@ export default function NewSolicitationBox({
         name: loggedUser.name,
         place: loggedUser.place,
       },
-      date: new Date().toISOString(),
+      createdAt: new Date(),
     });
     showToast({
       title: "Sucesso",

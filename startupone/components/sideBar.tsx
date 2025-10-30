@@ -9,21 +9,15 @@ import { InputIcon } from "primereact/inputicon";
 import { InputText } from "primereact/inputtext";
 import { useRouter } from "next/router";
 import NotificationsBox from "./notificationsBox";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import NewSolicitationBox from "./newSolicitationBox";
+import NewBookingBoxComponent from "./newBookingBox";
+import { ClientContext } from "@/context/ClientContext";
 
-interface SideBarProps {
-  onOpenSolicitation: (type: number, header: string) => void;
-  onOpenBooking: (placeId: number) => void;
-  router: any;
-}
-
-export default function SideBarComponent({
-  onOpenSolicitation,
-  onOpenBooking,
-  router,
-}: SideBarProps) {
+export default function SideBarComponent() {
   const pathname = usePathname();
+  const useClient = () => useContext(ClientContext) as any;
   const [selected, setSelected] = useState(pathname.replace("/", ""));
 
   const selectItem = (label: string) => {
@@ -31,8 +25,44 @@ export default function SideBarComponent({
     router.push(`/${label}`);
   };
 
+  const {
+    router,
+    isNewSolicitationOpen,
+    closeNewSolicitation,
+    solicitationStep,
+    solicitationHeader,
+    solicitationType,
+    setSolicitationStep,
+    isNewBookingOpen,
+    closeNewBooking,
+    bookingStep,
+    bookingPlaceId,
+    setBookingPlaceId,
+    setBookingStep,
+    openNewSolicitation,
+    openNewBooking,
+  } = useClient();
+
   return (
     <div className="h-screen w-[350px] fixed start-0 top-0 border-r border-gray-300 bg-gray-50 flex flex-col items-center p-3">
+      <NewSolicitationBox
+        isOpen={isNewSolicitationOpen}
+        onClose={closeNewSolicitation}
+        inheritedStep={solicitationStep}
+        inheritedTitle={solicitationHeader}
+        inheritedType={solicitationType}
+        setStep={setSolicitationStep}
+      />
+
+      <NewBookingBoxComponent
+        isOpen={isNewBookingOpen}
+        onClose={closeNewBooking}
+        inheritedStep={bookingStep}
+        placeId={bookingPlaceId}
+        setPlaceId={setBookingPlaceId}
+        setStep={setBookingStep}
+      />
+
       <div className="absolute top-[20px] end-[20px] z-[100]">
         <NotificationsBox />
       </div>
@@ -100,35 +130,35 @@ export default function SideBarComponent({
         className="w-full flex flex-col gap-y-1
             *:h-[50px] *:w-full *:flex *:items-center *:gap-x-3 *:rounded-lg *:transition-colors *:duration-150 *:hover:bg-gray-200 *:p-4 *:cursor-pointer"
       >
-        <button onClick={() => onOpenSolicitation(2, "Nova solicitação")}>
+        <button onClick={() => openNewSolicitation(2, "Nova solicitação")}>
           <i
             className="pi pi-plus text-primary shrink-0"
             style={{ fontSize: "1.2rem" }}
           ></i>
           <p className="">Nova solicitação</p>
         </button>
-        <button onClick={() => onOpenSolicitation(3, "Novo pedido")}>
+        <button onClick={() => openNewSolicitation(3, "Novo pedido")}>
           <i
             className="pi pi-wrench text-primary shrink-0"
             style={{ fontSize: "1.2rem" }}
           ></i>
           <p className="">Pedir serviço</p>
         </button>
-        <button onClick={() => onOpenSolicitation(1, "Novo pedido")}>
+        <button onClick={() => openNewSolicitation(1, "Novo pedido")}>
           <i
             className="pi pi-box text-primary shrink-0"
             style={{ fontSize: "1.2rem" }}
           ></i>
           <p className="">Pedir objeto</p>
         </button>
-        <button onClick={() => onOpenSolicitation(4, "Nova enquete")}>
+        <button onClick={() => openNewSolicitation(4, "Nova enquete")}>
           <i
             className="pi pi-align-left text-primary shrink-0"
             style={{ fontSize: "1.2rem" }}
           ></i>
           <p className="">Criar enquete</p>
         </button>
-        <button onClick={() => onOpenBooking(0)}>
+        <button onClick={() => openNewBooking(0)}>
           <i
             className="pi pi-calendar-plus text-primary shrink-0"
             style={{ fontSize: "1.2rem" }}

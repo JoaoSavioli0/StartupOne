@@ -225,14 +225,14 @@ export default function LoginPage() {
                   )}
                 </div>
 
-                <div className="w-full flex justify-between items-center">
+                <div className="w-full flex justify-between items-center text-sm">
                   <div className="flex items-center">
                     <Checkbox
                       onChange={(e) => setRememberUser(!!e.checked)}
                       checked={rememberUser}
                     ></Checkbox>
                     <p
-                      className="ml-1 font-medium text-zinc-500 cursor-pointer"
+                      className="ml-1.5 font-medium text-zinc-500 cursor-pointer"
                       onClick={() => setRememberUser(!rememberUser)}
                     >
                       Lembrar usuário

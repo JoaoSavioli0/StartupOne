@@ -27,24 +27,6 @@ export default function ProfilePage() {
 
   const [search, setSearch] = useState("");
 
-  const {
-    router,
-    isNewSolicitationOpen,
-    closeNewSolicitation,
-    solicitationStep,
-    solicitationHeader,
-    solicitationType,
-    setSolicitationStep,
-    isNewBookingOpen,
-    closeNewBooking,
-    bookingStep,
-    bookingPlaceId,
-    setBookingPlaceId,
-    setBookingStep,
-    openNewSolicitation,
-    openNewBooking,
-  } = useClient();
-
   const { loggedUser, mockSolicitations, mockRequests, mockSurveys } =
     useMockData() as {
       loggedUser: any;
@@ -126,29 +108,7 @@ export default function ProfilePage() {
 
   return (
     <div className="w-full min-h-screen flex justify-center bg-[#F5F6F8] relative">
-      <NewSolicitationBox
-        isOpen={isNewSolicitationOpen}
-        onClose={closeNewSolicitation}
-        inheritedStep={solicitationStep}
-        inheritedTitle={solicitationHeader}
-        inheritedType={solicitationType}
-        setStep={setSolicitationStep}
-      />
-
-      <NewBookingBoxComponent
-        isOpen={isNewBookingOpen}
-        onClose={closeNewBooking}
-        inheritedStep={bookingStep}
-        placeId={bookingPlaceId}
-        setPlaceId={setBookingPlaceId}
-        setStep={setBookingStep}
-      />
-
-      <SideBar
-        onOpenSolicitation={openNewSolicitation}
-        onOpenBooking={openNewBooking}
-        router={router}
-      />
+      <SideBar />
 
       <div className="w-full h-full flex items-center justify-center pl-[350px] ">
         <div className="w-[60%] h-full flex flex-col gap-y-2 py-4">
