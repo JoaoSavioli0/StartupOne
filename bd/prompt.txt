@@ -1,0 +1,88 @@
+CREATE TABLE enderecos (
+    id INT PRIMARY KEY AUTO_INCREMENT,-- Chave primária autoincrementável
+    id_entidade INT NOT NULL,                  -- ID da entidade à qual o endereço pertence (ex: id_cliente, id_empresa)
+    tipo_entidade VARCHAR(50) NOT NULL,        -- Tipo da entidade (ex: 'Cliente', 'Empresa') - útil para polimorfismo
+    cep CHAR(9) ,                      -- CEP (incluindo hífen, se desejado)
+    logradouro VARCHAR(255) NOT NULL,          -- Nome da rua, avenida, etc.
+    numero VARCHAR(10) NOT NULL,               -- Número do local
+    complemento VARCHAR(100),                  -- Complemento (apto, bloco, casa, etc.)
+    bairro VARCHAR(100) NOT NULL,              -- Bairro
+    cidade INT NOT NULL,  
+    uf CHAR(2) NOT NULL,
+    data_criacao datetime
+);
+
+drop table enderecos;
+
+create table condominios(
+id int primary key auto_increment,
+nome varchar(100) not null,
+cnpj CHAR(14),
+logo text,
+data_criacao datetime,
+data_alteracao datetime,
+id_endereco int,
+
+foreign key (id_endereco) references enderecos(id)
+);
+
+drop table condominios;
+
+create table usuarios(
+id int primary key auto_increment,
+id_responsavel int,
+nome varchar(100) not null,
+email varchar(100) not null,
+telefone varchar(14) not null,
+cpf varchar(12) not null,
+senha_hash varchar(50),
+tipo varchar(20),
+imagem_perfil text,
+data_criacao datetime,
+data_alteracao datetime,
+id_condominio int,
+id_endereco int,
+
+foreign key (id_condominio) references condominios(id),
+foreign key (id_endereco) references enderecos(id)
+);
+
+drop table usuarios;
+
+create table chamados (
+	id int primary key auto_increment,
+	titulo varchar(100) not null,
+    descricao varchar(250) not null,
+    local_ocorrencia varchar(40) not null,
+    status varchar(20) default "Pendente",
+    urgencia int default 1,
+    data_criacao datetime not null,
+    data_alteracao datetime,
+    num_curtidas int default 0,
+    id_condominio int not null,
+    id_usuario int not null,
+    
+    foreign key (id_condominio) references condominios(id),
+    foreign key (id_usuario) references usuarios(id)
+);
+
+drop table chamados;
+
+create table categorias(
+	id int primary key auto_increment,
+    categoria varchar(20) not null,
+	impacto int default 1,
+    id_condominio int default 0,
+    palavras_chave text,
+    data_criacao datetime,
+    data_alteracao datetime
+);
+
+drop table categorias;
+
+create table chamado_categoria(
+	id_chamado int,
+    id_categoria int,
+    
+    primary key(id_chamado, id_categoria)
+)
