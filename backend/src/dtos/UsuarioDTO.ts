@@ -30,7 +30,7 @@ export function mapUsuarioDTO(
     id: usuario.id,
     nome: usuario.nome,
     dataNascimento: usuario.dataNascimento,
-    imagemPerfil: usuario.imagemPerfil,
+    imagemPerfil: usuario.imagemPerfil || "",
     endereco: enderecoDTO,
     telefone: usuario.telefone,
   };

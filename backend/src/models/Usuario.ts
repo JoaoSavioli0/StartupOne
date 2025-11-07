@@ -54,7 +54,7 @@ export class Usuario
   // associações
   declare responsavel?: Usuario;
   declare condominio?: Condominio;
-  declare endereco?: Endereco;
+  declare endereco: Endereco;
 
   // mixins do Sequelize (helpers prontos)
   declare getResponsavel: BelongsToGetAssociationMixin<Usuario>;
@@ -84,6 +84,7 @@ Usuario.init(
     dataNascimento: {
       type: DataTypes.DATE,
       allowNull: false,
+      field: "data_nascimento",
     },
     telefone: {
       type: DataTypes.STRING,
@@ -97,6 +98,7 @@ Usuario.init(
     senhaHash: {
       type: DataTypes.STRING,
       allowNull: false,
+      field: "senha_hash",
     },
     tipo: {
       type: DataTypes.STRING,
@@ -104,26 +106,32 @@ Usuario.init(
     },
     imagemPerfil: {
       type: DataTypes.STRING,
+      field: "imagem_perfil",
     },
     dataCriacao: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+      field: "data_criacao",
     },
     dataAlteracao: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+      field: "data_alteracao",
     },
     idResponsavel: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: true,
+      field: "id_responsavel",
     },
     idCondominio: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
+      field: "id_condominio",
     },
     idEndereco: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
+      field: "id_endereco",
     },
   },
   {
