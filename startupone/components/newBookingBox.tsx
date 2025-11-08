@@ -15,6 +15,7 @@ import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import { MockDataContext } from "@/context/MockDataContext";
 import { title } from "process";
+import { ClientContext } from "../context/ClientContext";
 
 interface NewBookingProps {
   isOpen: boolean;
@@ -35,7 +36,7 @@ export default function NewBookingBoxComponent({
 }: NewBookingProps) {
   const [emblaRef] = useEmblaCarousel({ dragFree: true });
 
-  const { showToast } = useContext(MockDataContext) as any;
+  const { showToast } = useContext(ClientContext) as any;
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<BookingInfo | null>(null);
@@ -288,11 +289,10 @@ export default function NewBookingBoxComponent({
                       <button
                         key={date.toISOString()}
                         onClick={() => setSelectedDate(date)}
-                        className={`px-2 py-0.5 text-sm rounded-full  cursor-pointer ${
-                          isSelected
+                        className={`px-2 py-0.5 text-sm rounded-full  cursor-pointer ${isSelected
                             ? "bg-blue-600 text-white"
                             : "bg-gray-100 text-gray-500"
-                        }`}
+                          }`}
                       >
                         <span className="font-light">{dayName}</span>
                         <span className="ml-1 font-medium">{dayNumber}</span>
