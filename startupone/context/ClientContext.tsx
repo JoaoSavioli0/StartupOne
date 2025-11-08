@@ -12,13 +12,13 @@ import React, {
 
 export type toastProps = {
   type:
-    | "success"
-    | "info"
-    | "warn"
-    | "error"
-    | "secondary"
-    | "contrast"
-    | undefined;
+  | "success"
+  | "info"
+  | "warn"
+  | "error"
+  | "secondary"
+  | "contrast"
+  | undefined;
   title: string;
   text: string;
   duration?: number;
@@ -46,7 +46,7 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
   const openNewSolicitation = (type: number, header: string) => {
     setSolicitationType(type);
     setSolicitationStep(2);
-    setBoxHeader(header);
+    setSolicitationHeader(header);
     setIsNewSolicitationOpen(true);
   };
 
@@ -110,9 +110,8 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
     >
       <Toast ref={toast} position="top-right" />
       <div
-        className={`${
-          isNewSolicitationOpen || isNewBookingOpen ? "overflow-y-hidden" : ""
-        }`}
+        className={`${isNewSolicitationOpen || isNewBookingOpen ? "overflow-y-hidden" : ""
+          }`}
       >
         {children}
       </div>

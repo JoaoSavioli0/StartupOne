@@ -100,9 +100,8 @@ export default function SideBarComponent() {
           }
         >
           <i
-            className={`pi pi-home shrink-0 ${
-              selected === "home" ? "text-white" : "text-primary"
-            }`}
+            className={`pi pi-home shrink-0 ${selected === "home" ? "text-white" : "text-primary"
+              }`}
             style={{ fontSize: "1.2rem" }}
           ></i>
           <p className="">Página inicial</p>
@@ -116,9 +115,8 @@ export default function SideBarComponent() {
           }
         >
           <i
-            className={`pi pi-user shrink-0 ${
-              selected === "profile" ? "text-white" : "text-primary"
-            }`}
+            className={`pi pi-user shrink-0 ${selected === "profile" ? "text-white" : "text-primary"
+              }`}
             style={{ fontSize: "1.2rem" }}
           ></i>
           <p className="">Perfil</p>
