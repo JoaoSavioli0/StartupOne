@@ -82,7 +82,7 @@ export default function LoginPage() {
     setErroLogin(validateLoginInfo());
 
     if (!validateLoginInfo()) {
-      document.cookie = `communityon_user-token=1; path=/; Secure; SameSite=Strict`;
+      // document.cookie = `communityon_user-token=1; path=/; Secure; SameSite=Strict`;
       router.push("/home");
     } else {
       setIsLoading(false);
