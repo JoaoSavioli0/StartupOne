@@ -24,6 +24,8 @@ interface GalleriaImage {
 }
 
 interface SolicitationBoxProps {
+  inHome?: boolean;
+  className?: string;
   id: number;
   title: string;
   text: string;
@@ -36,6 +38,8 @@ interface SolicitationBoxProps {
 }
 
 export default function SolicitationBoxComponent({
+  inHome = true,
+  className = "",
   id,
   title,
   text,
@@ -75,14 +79,13 @@ export default function SolicitationBoxComponent({
         src={item.itemImageSrc}
         alt={item.alt}
         style={{ width: "100%", display: "block" }}
-
       />
     );
   };
 
   return (
     <div
-      className="w-full rounded-lg p-3 bg-white flex flex-col relative shadow-xs cursor-pointer"
+      className={`w-full rounded-lg p-3 bg-white flex flex-col relative shadow-xs cursor-pointer ${className}`}
       onClick={() => router.push(`/solicitation/${id}`)}
     >
       <div onClick={(e) => e.stopPropagation()}>
@@ -104,6 +107,7 @@ export default function SolicitationBoxComponent({
 
       <div className="absolute top-[15px] end-[15px] rounded-full p-[5px] hover:bg-zinc-100 transition-colors duration-200 cursor-pointer">
         <Button
+          onClick={(e) => e.stopPropagation()}
           icon="pi pi-ellipsis-v"
           rounded
           text
@@ -145,7 +149,10 @@ export default function SolicitationBoxComponent({
       <p className="mt-4 break-words">{text}</p>
 
       {images && images.length > 0 && (
-        <div className="grid grid-cols-2 grid-rows-2 mt-2 h-[400px] w-full gap-1 *:cursor-pointer" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="grid grid-cols-2 grid-rows-2 mt-2 h-[400px] w-full gap-1 *:cursor-pointer"
+          onClick={(e) => e.stopPropagation()}
+        >
           {images.slice(0, 3).map((i, index) => (
             <div
               key={`${id}/${index}`}
@@ -175,16 +182,21 @@ export default function SolicitationBoxComponent({
       )}
 
       <div className="w-full flex items-center justify-between h-[35px] mt-4">
-        <div className="flex h-full gap-x-2">
+        <div
+          className="flex h-full gap-x-2"
+          onClick={(e) => e.stopPropagation()}
+        >
           <button className="flex gap-x-1.5 items-center h-full rounded-lg border border-gray-300 bg-gray-50 px-3 cursor-pointer transition-colors duration-150 hover:bg-primary hover:text-white">
             <i className="pi pi-arrow-up" style={{ fontSize: "0.7rem" }}></i>
             <p className="font-medium text-sm">0</p>
           </button>
 
-          <button className="h-full rounded-lg flex items-center gap-x-1.5 px-3 cursor-pointer transition-colors duration-150 hover:bg-primary hover:text-white">
-            <i className="pi pi-comment" style={{ fontSize: "0.9rem" }}></i>
-            <span className="text-sm font-medium">Comentários (0)</span>
-          </button>
+          {inHome && (
+            <button className="h-full rounded-lg flex items-center gap-x-1.5 px-3 cursor-pointer transition-colors duration-150 hover:bg-primary hover:text-white">
+              <i className="pi pi-comment" style={{ fontSize: "0.9rem" }}></i>
+              <span className="text-sm font-medium">Comentários (0)</span>
+            </button>
+          )}
         </div>
 
         <div className="h-full items-center flex gap-x-1.5 text-orange-400 px-2">

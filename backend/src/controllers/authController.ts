@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { Usuario } from "../models";
+import { CookieOptions, Request, Response } from "express";
+import { Endereco, Usuario } from "../models";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -13,14 +13,20 @@ const SECRET =
 
 export async function login(req: Request, res: Response) {
   try {
-    const { email, senha } = req.body;
+    const { email, senha, lembrarUsuario } = req.body;
 
-    const usuario = await Usuario.findOne({ where: { email } });
+    const usuario = await Usuario.findOne({
+      where: { email },
+      include: {
+        model: Endereco,
+        as: "endereco",
+      },
+    });
 
     if (!usuario)
       return res.status(401).json({ message: "Usuário não encontrado" });
 
-    const senhaValida = bcrypt.compare(senha, usuario.senhaHash);
+    const senhaValida = await bcrypt.compare(senha, usuario.senhaHash);
 
     if (!senhaValida)
       return res.status(401).json({ message: "Senha incorreta" });
@@ -31,13 +37,22 @@ export async function login(req: Request, res: Response) {
       { idUsuario: usuario.id, idCondominio: usuario.idCondominio },
       SECRET,
       {
-        expiresIn: "24h",
+        expiresIn: "30d",
       }
     );
 
-    res.json({
+    const cookieOptions: CookieOptions = {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+    };
+
+    if (lembrarUsuario) cookieOptions.maxAge = 1000 * 60 * 60 * 24 * 30;
+
+    res.cookie("communityon_user-token", token, cookieOptions);
+
+    res.status(200).json({
       message: "Login feito com sucesso",
-      token,
       usuario: usuarioDto,
     });
   } catch (error) {
@@ -74,4 +89,13 @@ export async function register(req: Request, res: Response) {
     console.log(error);
     res.status(500).json({ message: "Erro interno" });
   }
+}
+
+export async function logout(req: Request, res: Response) {
+  res.clearCookie("communityon_user-token", {
+    httpOnly: true,
+    sameSite: "none",
+    secure: true,
+  });
+  return res.status(200).json({ message: "Logout feito com sucesso" });
 }

@@ -50,6 +50,8 @@ const newSolicitationSchema = z.object({
     .string()
     .min(10, { message: "A descrição deve ter pelo menos 10 caracteres" }),
   tags: z.array(z.object({ name: z.string(), code: z.string() })).max(6),
+  impact: z.string().nonempty(),
+  place: z.string().nonempty(),
 });
 
 const newSurveySchema = z.object({
@@ -102,6 +104,8 @@ export default function NewSolicitationBox({
     { name: "Por um período", value: 2 },
   ];
 
+  const impactLevels = ["Alto", "Médio", "Baixo", "Sugestão"];
+
   const nextStep = (newStep: number) => {
     setStep(newStep);
   };
@@ -151,6 +155,7 @@ export default function NewSolicitationBox({
       title: "",
       description: "",
       tags: [],
+      impact: "",
     },
   });
 
@@ -452,7 +457,7 @@ export default function NewSolicitationBox({
             </form>
           )}
 
-          {/* Etapa 2 Solicitação*/}
+          {/* Etapa 1 Solicitação*/}
           {inheritedType == 2 && inheritedStep == 2 && (
             <form
               onSubmit={handleNewSolicitation(onSubmitNewSolicitation)}
@@ -471,6 +476,33 @@ export default function NewSolicitationBox({
                     {watchSolicitation("title", "").length}/40
                   </span>
                 </label>
+              </FloatLabel>
+
+              <FloatLabel>
+                <InputText
+                  id="item"
+                  {...registerSolicitation("place")}
+                  className="w-full"
+                  maxLength={50}
+                />
+                <label htmlFor="item">
+                  Local da ocorrência
+                  <span className="rounded-md bg-gray-100 px-1 ml-2">
+                    {watchSolicitation("place", "").length}/50
+                  </span>
+                </label>
+              </FloatLabel>
+
+              <FloatLabel>
+                <Dropdown
+                  value={impactLevels}
+                  inputId="impact"
+                  {...registerSolicitation("impact")}
+                  options={impactLevels}
+                  optionLabel="impact"
+                  className="w-full"
+                />
+                <label htmlFor="impact">Impacto</label>
               </FloatLabel>
 
               <FloatLabel>

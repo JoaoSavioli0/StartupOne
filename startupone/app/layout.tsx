@@ -12,6 +12,7 @@ import "primereact/resources/primereact.min.css";
 import { MockDataProvider } from "@/context/MockDataContext";
 import { Sidebar } from "primereact/sidebar";
 import { ClientProvider } from "@/context/ClientContext";
+import { AuthProvider } from "@/context/AuthProvider";
 
 const montserrat = Montserrat({
   weight: ["400", "500", "600", "700", "800", "900"],
@@ -32,9 +33,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${montserrat.className} antialiased`}>
         <PrimeReactProvider>
-          <ClientProvider>
-            <MockDataProvider>{children}</MockDataProvider>
-          </ClientProvider>
+          <AuthProvider>
+            <ClientProvider>
+              <MockDataProvider>{children}</MockDataProvider>
+            </ClientProvider>
+          </AuthProvider>
         </PrimeReactProvider>
       </body>
     </html>

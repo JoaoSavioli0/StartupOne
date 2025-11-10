@@ -1,6 +1,7 @@
 "use client";
 
 import SideBar from "@/components/sideBar";
+import SolicitationBoxComponent from "@/components/solicitationBox";
 import SolicitationComment, {
   SolicitationCommentProps,
 } from "@/components/solicitationComment";
@@ -20,7 +21,7 @@ export default function SolicitationPage({
     mockSolicitations: Solicitation[];
     loggedUser: User;
   };
-  const { router } = useContext(ClientContext) as any
+  const { router } = useContext(ClientContext) as any;
 
   const paramsList = React.use(params);
   const solicitation = mockSolicitations.find(
@@ -51,15 +52,32 @@ export default function SolicitationPage({
   };
 
   return (
-    <div className="w-full h-screen flex flex-col justify-center items-center pl-[350px]">
+    <div className="w-full min-h-screen flex flex-col justify-center items-center pl-[350px] py-6">
       <SideBar />
-      <div className="w-[630px]">
+      <div className="w-[630px] py-6">
         {solicitation ? (
           <>
-            <button onClick={() => router.push("/home")} className="flex items-center gap-x-1.5 px-2 py-1.5 rounded-md bg-white border cursor-pointer border-gray-300">
+            <button
+              onClick={() => router.push("/home")}
+              className="flex items-center gap-x-1.5 px-2 py-1.5 rounded-md bg-white border cursor-pointer border-gray-300"
+            >
               <i className="pi pi-angle-left"></i>
-              Voltar</button>
-            <div className="w-full rounded-md bg-white border border-gray-300 p-5 relative mt-3">
+              Voltar
+            </button>
+            <SolicitationBoxComponent
+              inHome={false}
+              className="mt-4 border border-gray-300"
+              id={solicitation.id}
+              title={solicitation.title}
+              text={solicitation.text}
+              place={solicitation.place}
+              createdAt={solicitation.createdAt.toISOString()}
+              status={solicitation.status}
+              tags={solicitation.tags || []}
+              images={solicitation.images || []}
+              userData={solicitation.userData}
+            />
+            {/* <div className="w-full rounded-md bg-white border border-gray-300 p-5 relative mt-3">
               <div className="absolute top-[15px] end-[15px] rounded-full p-[5px] hover:bg-zinc-100 transition-colors duration-200 cursor-pointer">
                 <Button
                   icon="pi pi-ellipsis-v"
@@ -100,10 +118,9 @@ export default function SolicitationPage({
                   <p className="font-medium text-sm">0</p>
                 </button>
               </div>
-            </div>
+            </div> */}
 
             <div className="w-full flex flex-col gap-y-3 text-left mt-3">
-
               <div className="p-4 bg-white border border-gray-300 rounded-md flex flex-col items-end gap-y-2">
                 <h1 className="font-semibold text-lg w-full text-start">
                   {comments.length} Comentários
@@ -114,8 +131,9 @@ export default function SolicitationPage({
                     onBlur={() => setCommentFocused(false)}
                   >
                     <div
-                      className={`${commentFocused ? "size-[45px]" : "size-[30px]"
-                        } transition-all shrink-0 bg-zinc-200 rounded-full overflow-hidden flex items-center justify-center`}
+                      className={`${
+                        commentFocused ? "size-[45px]" : "size-[30px]"
+                      } transition-all shrink-0 bg-zinc-200 rounded-full overflow-hidden flex items-center justify-center`}
                     >
                       {loggedUser.avatar ? (
                         <img
@@ -150,8 +168,9 @@ export default function SolicitationPage({
                       setCommentText("");
                     }}
                     type="button"
-                    className={`h-[28px] text-black font-medium transition-opacity rounded-full px-3 text-sm cursor-pointer ${commentFocused ? "opacity-100" : "opacity-0"
-                      }`}
+                    className={`h-[28px] text-black font-medium transition-opacity rounded-full px-3 text-sm cursor-pointer ${
+                      commentFocused ? "opacity-100" : "opacity-0"
+                    }`}
                   >
                     Cancelar
                   </button>
@@ -159,8 +178,9 @@ export default function SolicitationPage({
                     type="button"
                     onClick={() => addComment()}
                     disabled={commentText.length == 0}
-                    className={`h-[28px] font-medium transition-opacity rounded-full bg-primary text-white px-3 text-sm cursor-pointer ${commentFocused ? "opacity-100" : "opacity-0"
-                      }`}
+                    className={`h-[28px] font-medium transition-opacity rounded-full bg-primary text-white px-3 text-sm cursor-pointer ${
+                      commentFocused ? "opacity-100" : "opacity-0"
+                    }`}
                   >
                     Comentar
                   </button>

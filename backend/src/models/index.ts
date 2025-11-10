@@ -1,6 +1,7 @@
 import "./Usuario";
 import "./Endereco";
 import "./Condominio";
+import "./associations";
 
 import { Usuario } from "./Usuario";
 import { Endereco } from "./Endereco";

@@ -15,21 +15,23 @@ import {
   XIcon,
   HouseLineIcon,
 } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
-import { localGet, localSet, sessionRemove } from "@/utils/storage";
+import { useContext, useEffect, useState } from "react";
+import { localGet, localSet, sessionRemove, sessionSet } from "@/utils/storage";
 import { confirmCondoInfo } from "../models/condoClasses";
 import { InputMask } from "primereact/inputmask";
 import { getMaxBirthDate } from "@/utils/date";
 import { useRouter } from "next/navigation";
+import axios, { AxiosError } from "axios";
+import { AuthContext } from "@/context/AuthProvider";
 
 export default function LoginPage() {
+  const { login } = useContext(AuthContext) as any;
   const router = useRouter();
   const condoInfoFound: confirmCondoInfo = {
     id: 1,
     name: "Chácaras Flórida",
     address: "Rodovia Marechal Rondon, km 110, Itu - SP",
   };
-  const [rememberUser, setRememberUser] = useState(false);
   const [visibleForm, setVisibleForm] = useState("confirmation");
   const [condoInfo, setCondoInfo] = useState<confirmCondoInfo>({
     id: 0,
@@ -37,7 +39,11 @@ export default function LoginPage() {
     address: "",
   });
   const maxBirthDate = getMaxBirthDate();
-  const [formLogin, setFormLogin] = useState({ email: "", password: "" });
+  const [formLogin, setFormLogin] = useState({
+    email: "",
+    password: "",
+    rememberUser: false,
+  });
   const [erroLogin, setErroLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -59,15 +65,15 @@ export default function LoginPage() {
     // validação básica de email (regex simples)
     const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!regexEmail.test(formLogin.email)) {
-      return true;
+      return false;
     }
 
     // validação básica de senha
-    if (!formLogin.password || formLogin.password.length < 6) {
-      return true;
+    if (!formLogin.password || formLogin.password.length < 3) {
+      return false;
     }
 
-    return false;
+    return true;
   }
 
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -76,15 +82,29 @@ export default function LoginPage() {
     setErroLogin(false);
     setIsLoading(true);
 
-    //adiciona cookie e redireciona
-    await new Promise((r) => setTimeout(r, 2000)); //simulando requisição de login
+    if (validateLoginInfo()) {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        const response = await axios.post(
+          `${apiUrl}/auth/login`,
+          {
+            email: formLogin.email,
+            senha: formLogin.password,
+            lembrarUsuario: formLogin.rememberUser,
+          },
+          { withCredentials: true }
+        );
+        console.log(response.data.usuario);
+        login(response.data.usuario);
 
-    setErroLogin(validateLoginInfo());
-
-    if (!validateLoginInfo()) {
-      // document.cookie = `communityon_user-token=1; path=/; Secure; SameSite=Strict`;
-      router.push("/home");
+        router.push("/home");
+      } catch (error: any) {
+        setIsLoading(false);
+        if (error.response && error.response.status === 401) setErroLogin(true);
+        console.error("Erro de login: ", error);
+      }
     } else {
+      setErroLogin(true);
       setIsLoading(false);
     }
   };
@@ -220,7 +240,9 @@ export default function LoginPage() {
                   </IconField>
                   {erroLogin && (
                     <p className="mt-2 text-xs text-red-600">
-                      Usuário ou senha inválidos.
+                      {validateLoginInfo()
+                        ? "Usuário ou senha incorretos"
+                        : "Usuário ou senha inválidos."}
                     </p>
                   )}
                 </div>
@@ -228,12 +250,22 @@ export default function LoginPage() {
                 <div className="w-full flex justify-between items-center text-sm">
                   <div className="flex items-center">
                     <Checkbox
-                      onChange={(e) => setRememberUser(!!e.checked)}
-                      checked={rememberUser}
+                      onChange={(e) =>
+                        setFormLogin((prev) => ({
+                          ...prev,
+                          rememberUser: !!e.checked,
+                        }))
+                      }
+                      checked={formLogin.rememberUser}
                     ></Checkbox>
                     <p
                       className="ml-1.5 font-medium text-zinc-500 cursor-pointer"
-                      onClick={() => setRememberUser(!rememberUser)}
+                      onClick={() =>
+                        setFormLogin((prev) => ({
+                          ...prev,
+                          rememberUser: !!formLogin.rememberUser,
+                        }))
+                      }
                     >
                       Lembrar usuário
                     </p>

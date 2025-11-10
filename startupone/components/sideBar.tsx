@@ -14,15 +14,35 @@ import { usePathname } from "next/navigation";
 import NewSolicitationBox from "./newSolicitationBox";
 import NewBookingBoxComponent from "./newBookingBox";
 import { ClientContext } from "@/context/ClientContext";
+import axios from "axios";
+import { AuthContext } from "@/context/AuthProvider";
+import { Usuario } from "@/utils/models";
 
 export default function SideBarComponent() {
+  const { user } = useContext(AuthContext) as { user: Usuario | null };
+
   const pathname = usePathname();
   const useClient = () => useContext(ClientContext) as any;
   const [selected, setSelected] = useState(pathname.replace("/", ""));
-
+  console.log("Usuário: ", user);
   const selectItem = (label: string) => {
     setSelected(label);
     router.push(`/${label}`);
+  };
+
+  const logOff = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await axios.post(
+        `${apiUrl}/auth/logout`,
+        {},
+        { withCredentials: true }
+      );
+      console.log("response: ", response.data);
+      router.push("/login");
+    } catch (error) {
+      console.error("Erro ao sair: ", error);
+    }
   };
 
   const {
@@ -44,7 +64,7 @@ export default function SideBarComponent() {
   } = useClient();
 
   return (
-    <div className="h-screen w-[350px] fixed start-0 top-0 border-r border-gray-300 bg-gray-50 flex flex-col items-center p-3">
+    <div className="h-screen w-[350px] overflow-y-scroll fixed start-0 top-0 border-r border-gray-300 bg-gray-50 flex flex-col items-center p-3">
       <NewSolicitationBox
         isOpen={isNewSolicitationOpen}
         onClose={closeNewSolicitation}
@@ -71,12 +91,14 @@ export default function SideBarComponent() {
         <div className="size-[55px] rounded-full bg-gray-200 shrink-0"></div>
         <div className="flex flex-col justify-center w-full">
           <div className="flex items-center gap-x-2">
-            <h1 className="text-primary text-lg font-semibold">João Pedro</h1>
+            <h1 className="text-primary text-lg font-semibold">
+              {user?.nome || ""}
+            </h1>
             <button className="cursor-pointer rounded-full p-1 transition-colors text-primary hover:bg-primary hover:text-white">
               <PencilSimpleIcon weight="fill" />
             </button>
           </div>
-          <p className="text-gray-600 text-sm">Prédio x, Apto 101</p>
+          <p className="text-gray-600 text-sm">{user?.endereco.bairro || ""}</p>
         </div>
       </div>
 
@@ -100,8 +122,9 @@ export default function SideBarComponent() {
           }
         >
           <i
-            className={`pi pi-home shrink-0 ${selected === "home" ? "text-white" : "text-primary"
-              }`}
+            className={`pi pi-home shrink-0 ${
+              selected === "home" ? "text-white" : "text-primary"
+            }`}
             style={{ fontSize: "1.2rem" }}
           ></i>
           <p className="">Página inicial</p>
@@ -115,8 +138,9 @@ export default function SideBarComponent() {
           }
         >
           <i
-            className={`pi pi-user shrink-0 ${selected === "profile" ? "text-white" : "text-primary"
-              }`}
+            className={`pi pi-user shrink-0 ${
+              selected === "profile" ? "text-white" : "text-primary"
+            }`}
             style={{ fontSize: "1.2rem" }}
           ></i>
           <p className="">Perfil</p>
@@ -198,11 +222,7 @@ export default function SideBarComponent() {
           </div>
           <p className="">Ajuda</p>
         </button>
-        <button
-          onClick={() => {
-            router.push("/login");
-          }}
-        >
+        <button onClick={logOff}>
           <div className="w-[1.2rem] h-full flex items-center justify-center">
             <i
               className="pi pi-sign-out text-primary shrink-0 -rotate-180"
