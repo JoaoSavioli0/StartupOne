@@ -23,9 +23,57 @@ import { getMaxBirthDate } from "@/utils/date";
 import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import { AuthContext } from "@/context/AuthProvider";
+import z from "zod";
+import { phoneRegex, validateCPF } from "@/utils/validators";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ClientContext, toastProps } from "@/context/ClientContext";
+
+//Schema zod para registro
+const registerSchema = z
+  .object({
+    email: z.email("Insira um e-mail válido"),
+    name: z.string().min(10, "Insira seu nome completo"),
+    phone: z.string().regex(phoneRegex, "Telefone inválido"),
+    cpf: z.string().refine(validateCPF, "CPF inválido"),
+    birthDate: z.date().refine((data) => {
+      const birth = new Date(data);
+      const today = new Date();
+      const age =
+        today.getFullYear() -
+        birth.getFullYear() -
+        (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDay())
+          ? 1
+          : 0);
+      return age >= 12;
+    }, "A idade mínima para cadastro é de 12 anos"),
+    password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    error: "Senhas não coincidem",
+    path: ["confirmPassword"],
+  });
+
+//Define tipo do schema
+type NewUser = z.infer<typeof registerSchema>;
 
 export default function LoginPage() {
   const { login } = useContext(AuthContext) as any;
+  const { showToast } = useContext(ClientContext) as any;
+
+  //Define o react hook form com schema
+  const {
+    control,
+    watch,
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<NewUser>({
+    resolver: zodResolver(registerSchema),
+  });
+
   const router = useRouter();
   const condoInfoFound: confirmCondoInfo = {
     id: 1,
@@ -94,9 +142,8 @@ export default function LoginPage() {
           },
           { withCredentials: true }
         );
-        console.log(response.data.usuario);
-        login(response.data.usuario);
 
+        login(response.data.usuario);
         router.push("/home");
       } catch (error: any) {
         setIsLoading(false);
@@ -106,6 +153,36 @@ export default function LoginPage() {
     } else {
       setErroLogin(true);
       setIsLoading(false);
+    }
+  };
+
+  const onRegisterSubmit = async (data: NewUser) => {
+    try {
+      // const response = await axios.post(
+      //   process.env.NEXT_PUBLIC_API_URL + "/user",
+      //   {
+      //     email: data.email,
+      //     phone: data.phone,
+      //     password: data.password,
+      //     name: data.name,
+      //     cpf: data.cpf.replaceAll(".", "").replace("-", ""),
+      //     birthDate: data.birthDate,
+      //     idCondominio: 1,
+      //   }
+      // );
+
+      showToast({
+        title: "Conta criada",
+        text: "Faça login com sua nova conta para continuar",
+        duration: 10000,
+        type: "success",
+      });
+
+      reset();
+
+      setVisibleForm("login");
+    } catch (error) {
+      console.log("Erro de registro: ", error);
     }
   };
 
@@ -317,63 +394,178 @@ export default function LoginPage() {
                 <h1 className="text-3xl font-black">Cadastre-se</h1>
               </div>
 
-              <form action="" className="flex flex-col gap-y-4 w-full mt-4">
-                <IconField iconPosition="left" className="w-full">
-                  <InputIcon>
-                    <EnvelopeSimpleIcon size={20} />
-                  </InputIcon>
-                  <InputText placeholder="Email" className="w-full" />
-                </IconField>
-
-                <IconField iconPosition="left" className="w-full">
-                  <InputIcon>
-                    <UserIcon size={20} />
-                  </InputIcon>
-                  <InputText placeholder="Nome completo" className="w-full" />
-                </IconField>
-
-                <div className="w-full flex gap-x-4">
-                  <IconField iconPosition="left" className="grow-1">
+              <form
+                action=""
+                onSubmit={handleSubmit(onRegisterSubmit)}
+                className="flex flex-col gap-y-2 w-full mt-4"
+              >
+                <div className="w-full">
+                  <IconField iconPosition="left" className="w-full">
                     <InputIcon>
-                      <IdentificationCardIcon size={20} />
+                      <EnvelopeSimpleIcon size={20} />
                     </InputIcon>
-                    <InputMask
-                      placeholder="CPF"
+                    <InputText
+                      {...register("email")}
+                      invalid={errors.email?.message ? true : false}
+                      placeholder="Email"
                       className="w-full"
-                      mask="999.999.999-99"
                     />
                   </IconField>
-
-                  <Calendar
-                    placeholder="Data de nascimento"
-                    className="grow-1"
-                    dateFormat="dd/mm/yy"
-                    maxDate={maxBirthDate}
-                  />
+                  {errors.email && (
+                    <span className="text-red-500 text-xs">
+                      {errors.email.message}
+                    </span>
+                  )}
                 </div>
 
-                <IconField iconPosition="left" className="w-full">
-                  <InputIcon>
-                    <LockIcon size={20} />
-                  </InputIcon>
-                  <InputText
-                    type="password"
-                    placeholder="Senha"
-                    className="w-full"
-                  />
-                </IconField>
+                <div className="w-full">
+                  <IconField iconPosition="left" className="w-full">
+                    <InputIcon>
+                      <i className="pi pi-user"></i>
+                    </InputIcon>
+                    <InputText
+                      {...register("name")}
+                      invalid={errors.name?.message ? true : false}
+                      placeholder="Nome completo"
+                      className="w-full"
+                    />
+                  </IconField>
+                  {errors.name && (
+                    <span className="text-red-500 text-xs">
+                      {errors.name.message}
+                    </span>
+                  )}
+                </div>
 
-                <IconField iconPosition="left" className="w-full">
-                  <InputIcon>
-                    <LockIcon size={20} />
-                  </InputIcon>
-                  <InputText
-                    type="password"
-                    placeholder="Confirme a senha"
-                    className="w-full"
-                  />
-                </IconField>
+                <div className="w-full">
+                  <Controller
+                    name="phone"
+                    control={control}
+                    rules={{ required: "Telefone é obrigatório" }}
+                    render={({ field }) => {
+                      const digits = (field.value || "").replace(/\D/g, "");
+                      const mask =
+                        digits.length <= 10
+                          ? "(99)9999-99999"
+                          : "(99)99999-9999";
 
+                      return (
+                        <IconField iconPosition="left" className="w-full">
+                          <InputIcon>
+                            <i className="pi pi-phone"></i>
+                          </InputIcon>
+                          <InputMask
+                            {...field}
+                            value={field.value || ""}
+                            onChange={(e) => field.onChange(e.value)}
+                            mask={mask}
+                            placeholder="Telefone"
+                            invalid={!!errors.phone}
+                            className="w-full"
+                          />
+                        </IconField>
+                      );
+                    }}
+                  />
+                  {errors.phone && (
+                    <span className="text-red-500 text-xs">
+                      {errors.phone.message}
+                    </span>
+                  )}
+                </div>
+
+                <div className="w-full">
+                  <div className="w-full flex gap-x-2">
+                    <IconField iconPosition="left" className="grow-1">
+                      <InputIcon>
+                        <IdentificationCardIcon size={20} />
+                      </InputIcon>
+                      <InputMask
+                        {...register("cpf")}
+                        invalid={errors.cpf?.message ? true : false}
+                        placeholder="CPF"
+                        className="w-full"
+                        mask="999.999.999-99"
+                      />
+                    </IconField>
+
+                    <Controller
+                      name="birthDate"
+                      control={control}
+                      render={({ field }) => {
+                        const value =
+                          field.value instanceof Date
+                            ? field.value
+                            : field.value
+                            ? new Date(field.value)
+                            : null;
+
+                        return (
+                          <Calendar
+                            {...field}
+                            value={value}
+                            onChange={(e) => field.onChange(e.value)}
+                            invalid={!!errors.birthDate}
+                            placeholder="Data de nascimento"
+                            className="grow-1"
+                            dateFormat="dd/mm/yy"
+                          />
+                        );
+                      }}
+                    />
+                  </div>
+                  {errors.cpf ? (
+                    <span className="text-red-500 text-xs">
+                      {errors.cpf.message}
+                    </span>
+                  ) : errors.birthDate ? (
+                    <span className="text-red-500 text-xs">
+                      {errors.birthDate.message}
+                    </span>
+                  ) : (
+                    ""
+                  )}
+                </div>
+
+                <div className="w-full">
+                  <IconField iconPosition="left" className="w-full">
+                    <InputIcon>
+                      <LockIcon size={20} />
+                    </InputIcon>
+                    <InputText
+                      {...register("password")}
+                      invalid={errors.password?.message ? true : false}
+                      type="password"
+                      placeholder="Senha"
+                      className="w-full"
+                    />
+                  </IconField>
+                  {errors.password && (
+                    <span className="text-red-500 text-xs">
+                      {errors.password.message}
+                    </span>
+                  )}
+                </div>
+
+                <div className="w-full">
+                  <IconField iconPosition="left" className="w-full">
+                    <InputIcon>
+                      <LockIcon size={20} />
+                    </InputIcon>
+                    <InputText
+                      {...register("confirmPassword")}
+                      invalid={errors.confirmPassword?.message ? true : false}
+                      type="password"
+                      placeholder="Confirme a senha"
+                      className="w-full"
+                    />
+                  </IconField>
+                  {errors.confirmPassword && (
+                    <span className="text-red-500 text-xs">
+                      {errors.confirmPassword.message}
+                    </span>
+                  )}
+                </div>
                 <Button
                   label="Cadastrar"
                   severity="info"

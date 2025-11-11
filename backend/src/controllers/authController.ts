@@ -61,36 +61,6 @@ export async function login(req: Request, res: Response) {
   }
 }
 
-export async function register(req: Request, res: Response) {
-  const { email, nome, cpf, dataNascimento, telefone, senha, idCondominio } =
-    req.body;
-
-  try {
-    const hashedSenha = await bcrypt.hash(senha, 10);
-
-    const novoUsuario = Usuario.build({
-      nome: nome,
-      email: email,
-      cpf: cpf,
-      dataNascimento: dataNascimento,
-      telefone: telefone,
-      senhaHash: hashedSenha,
-      idCondominio: idCondominio,
-      idEndereco: 1,
-      tipo: "resident",
-      dataCriacao: new Date(),
-      dataAlteracao: new Date(),
-    });
-
-    await novoUsuario.save();
-
-    return res.status(201).json({ message: "Usuário registrado" });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Erro interno" });
-  }
-}
-
 export async function logout(req: Request, res: Response) {
   res.clearCookie("communityon_user-token", {
     httpOnly: true,

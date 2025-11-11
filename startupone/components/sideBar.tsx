@@ -92,7 +92,11 @@ export default function SideBarComponent() {
         <div className="flex flex-col justify-center w-full">
           <div className="flex items-center gap-x-2">
             <h1 className="text-primary text-lg font-semibold">
-              {user?.nome || ""}
+              {user?.nome
+                ? `${user.nome.split(" ")[0]} ${
+                    user.nome.split(" ")[user.nome.split(" ").length - 1]
+                  }`
+                : ""}
             </h1>
             <button className="cursor-pointer rounded-full p-1 transition-colors text-primary hover:bg-primary hover:text-white">
               <PencilSimpleIcon weight="fill" />

@@ -4,6 +4,7 @@ import { sequelize } from "./config/db";
 import authRouter from "./routes/authRoutes";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import userRouter from "./routes/userRoutes";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(
 app.use(cookieParser());
 
 app.use("/auth", authRouter);
+app.use("/user", userRouter);
 
 app.get("/protegido", (req, res) => {
   res.json({ message: "Rota pública" });
