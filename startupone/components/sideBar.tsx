@@ -64,7 +64,7 @@ export default function SideBarComponent() {
   } = useClient();
 
   return (
-    <div className="h-screen w-[350px] overflow-y-scroll fixed start-0 top-0 border-r border-gray-300 bg-gray-50 flex flex-col items-center p-3">
+    <div className="h-screen w-[350px] overflow-y-auto fixed start-0 top-0 border-r border-gray-300 bg-gray-50 flex flex-col items-center p-3">
       <NewSolicitationBox
         isOpen={isNewSolicitationOpen}
         onClose={closeNewSolicitation}

@@ -1,4 +1,4 @@
-import { calcAge } from "@/utils/date";
+import { calcAge, calcLifetime } from "@/utils/date";
 import { CircleIcon, ClockIcon } from "@phosphor-icons/react";
 import { Avatar } from "primereact/avatar";
 import { AvatarGroup } from "primereact/avatargroup";
@@ -11,7 +11,7 @@ import { useState } from "react";
 interface SurveyBoxProps {
   id: number;
   title: string;
-  date: string;
+  createdAt: Date;
   options: { label: string; value: number; votes: number }[];
   userData: { id: number; name: string; place: string; avatar: string };
 }
@@ -19,13 +19,15 @@ interface SurveyBoxProps {
 export default function SurveyBox({
   id,
   title,
-  date,
+  createdAt,
   options,
   userData,
 }: SurveyBoxProps) {
   const [votedOption, setVotedOption] = useState<number | null>(null);
 
   const totalVotes = options.reduce((acc, option) => acc + option.votes, 0);
+
+  const isClosed = new Date() > new Date(createdAt.getDate() + 15);
 
   const calcPercentage = (votes: number) => {
     return ((votes / totalVotes) * 100).toFixed(0);
@@ -53,9 +55,9 @@ export default function SurveyBox({
         <h1 className="text-lg font-semibold">{title}</h1>
         <div className="flex text-gray-500 items-center gap-x-1">
           <ClockIcon size={14} />
-          <p className="text-[13px]">{calcAge(date)}</p>
+          <p className="text-[13px]">{calcAge(createdAt.toISOString())}</p>
           <CircleIcon size={4} weight="fill" />
-          <p className="text-[13px]">Termina em 3 dias</p>
+          <p className="text-[13px]">{calcLifetime(createdAt.toISOString())}</p>
         </div>
         <div className="flex gap-x-1.5 items-center mt-2 text-gray-700">
           <p className="text-sm ml-1">
@@ -90,12 +92,17 @@ export default function SurveyBox({
       <div className="flex flex-col gap-y-2">
         {options.map((option) => (
           <div
-            onClick={() => setVotedOption(option.value)}
+            onClick={() => {
+              if (!isClosed) setVotedOption(option.value);
+            }}
             key={option.value}
-            className="w-full rounded-lg border border-gray-300 flex items-center justify-between h-[60px] px-4 relative cursor-pointer hover:bg-gray-100 transition-colors duration-150"
+            className={`w-full rounded-lg border border-gray-300 flex items-center justify-between h-[60px] px-4 relative transition-colors duration-150 ${
+              !isClosed ? "cursor-pointer hover:bg-gray-100" : "bg-gray-100"
+            }`}
           >
             <div className="flex items-center">
               <RadioButton
+                disabled={isClosed}
                 inputId={`option-${option.value}`}
                 name="surveyOption"
                 value={option.value}
@@ -110,13 +117,15 @@ export default function SurveyBox({
                 {option.label}
               </label>
             </div>
-            {votedOption && (
+            {(votedOption || isClosed) && (
               <div className="font-medium text-primary text-sm">
                 {calcPercentage(option.votes)}%
               </div>
             )}
             <ProgressBar
-              value={votedOption ? (option.votes * 100) / totalVotes : 0}
+              value={
+                votedOption || isClosed ? (option.votes * 100) / totalVotes : 0
+              }
               className="!absolute w-full !h-full start-0 top-0 rounded-lg !opacity-10"
               showValue={false}
             ></ProgressBar>

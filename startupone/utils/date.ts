@@ -58,9 +58,41 @@ export function calcAge(date: string) {
   }
   if (diffDay < 365) {
     const months = Math.floor(diffDay / 30);
-    return `há ${months} mês${months > 1 ? "es" : ""}`;
+    return `há ${months} ${months > 1 ? "meses" : "mês"}`;
   }
 
   const years = Math.floor(diffDay / 365);
   return `há ${years} ano${years > 1 ? "s" : ""}`;
+}
+
+export function calcLifetime(date: string) {
+  const now = new Date();
+  const endsAt = new Date(date);
+  endsAt.setDate(endsAt.getDate() + 10);
+
+  const diffMs = now.getTime() - endsAt.getTime();
+
+  const diffHour = Math.floor(diffMs / 1000 / 60 / 60);
+  const diffDay = Math.floor(diffHour / 24);
+
+  if (now < endsAt) {
+    if (diffHour < 24)
+      return `Termina em ${diffHour} hora${diffHour > 1 ? "s" : ""}`;
+    return `Termina em ${diffDay} dia${diffDay > 1 ? "s" : ""}`;
+  } else {
+    if (diffHour < 24)
+      return `Terminou há ${diffHour} hora${diffHour > 1 ? "s" : ""}`;
+    if (diffDay <= 7)
+      return `Terminou há ${diffDay} dia${diffDay > 1 ? "s" : ""}`;
+    if (diffDay < 30) {
+      const diffWeek = Math.floor(diffDay / 7);
+      return `Terminou há ${diffWeek} semana${diffWeek > 1 ? "s" : ""}`;
+    }
+    if (diffDay < 365) {
+      const diffMonth = Math.floor(diffDay / 30);
+      return `Terminou há ${diffMonth} ${diffMonth > 1 ? "meses" : "mês"}`;
+    }
+    const diffYear = Math.floor(diffDay / 365);
+    return `Terminou há ${diffYear} ano${diffYear > 1 ? "s" : ""}`;
+  }
 }

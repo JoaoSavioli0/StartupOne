@@ -161,7 +161,7 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
       id: 1,
       userData: { id: 2, name: "Thiago Moreira", place: "Apto 201" },
       title: "Qual melhoria você gostaria de ver no condomínio?",
-      createdAt: new Date("2023-03-16"),
+      createdAt: new Date("2025-08-11"),
       options: [
         {
           value: 1,
@@ -233,10 +233,6 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
     );
   }, [mockRequests, mockSolicitations, mockSurveys]);
 
-  useEffect(() => {
-    console.log("Alterou: ", mockSolicitations);
-  }, [mockSolicitations]);
-
   const addSolicitation = (newSolicitation: Solicitation) => {
     newSolicitation.id = mockSolicitations.length + 1;
     setMockSolicitations((prev) => [...prev, newSolicitation]);
@@ -255,6 +251,11 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
     newSurvey.id = mockSurveys.length + 1;
     newSurvey.options = newSurvey.options.map((op) => ({ ...op, votes: 0 }));
     setMockSurveys((prev) => [...prev, newSurvey]);
+  };
+
+  const addRequest = (newRequest: Request) => {
+    newRequest.id = mockRequests.length + 1;
+    setMockRequests((prev) => [...prev, newRequest]);
   };
 
   const editSurvey = (updatedSurvey: Survey) => {
@@ -276,6 +277,7 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
         sortedFeed: feedItems,
         loggedUser,
         mockRequests,
+        addRequest,
       }}
     >
       {children}

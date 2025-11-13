@@ -46,18 +46,14 @@ const newSolicitationSchema = z.object({
   title: z
     .string()
     .min(6, { message: "O título deve ter pelo menos 6 caracteres" }),
-  description: z
-    .string()
-    .min(10, { message: "A descrição deve ter pelo menos 10 caracteres" }),
+  description: z.string().min(1, { message: "A descrição é obrigatória" }),
   tags: z.array(z.object({ name: z.string(), code: z.string() })).max(6),
-  impact: z.string().nonempty(),
-  place: z.string().nonempty(),
+  impact: z.string().min(1, { message: "O nível de impacto é obrigatório" }),
+  place: z.string().min(1, { message: "O local de ocorrência é obrigatório" }),
 });
 
 const newSurveySchema = z.object({
-  title: z
-    .string()
-    .min(6, { message: "O título deve ter pelo menos 6 caracteres" }),
+  title: z.string().min(1, { message: "O título é obrigatório" }),
   options: z
     .array(
       z.object({
@@ -69,6 +65,20 @@ const newSurveySchema = z.object({
     .max(5, { message: "A enquete deve ter no máximo 5 opções" }),
 });
 
+const newJobRequest = z.object({
+  professional: z
+    .string()
+    .min(1, { message: "O tipo de profissional é obrigatório" }),
+  description: z
+    .string()
+    .min(1, { message: "A descrição do trabalho é obrigatória" }),
+});
+
+const newObjectRequest = z.object({
+  object: z.string().min(1, { message: "O objeto é obrigatório" }),
+  period: z.string().max(3, { message: "Digite um período válido" }),
+});
+
 export default function NewSolicitationBox({
   isOpen,
   onClose,
@@ -77,35 +87,33 @@ export default function NewSolicitationBox({
   inheritedTitle,
   setStep,
 }: NewSolicitationProps) {
-  const { addSolicitation, addSurvey, loggedUser } = useContext(
+  const { addSolicitation, addSurvey, addRequest, loggedUser } = useContext(
     MockDataContext
   ) as any;
 
+  //Contexts -------------------------------------------------------
   const { showToast } = useContext(ClientContext) as any;
+  //----------------------------------------------------------------
 
-  const [itemRequest, setItemRequest] = useState({
-    itemName: "",
-    period: 1,
-    days: "",
-  });
-
-  const [jobRequest, setJobRequest] = useState({
-    occupation: "",
-    description: "",
-  });
-
+  //useStates-------------------------------------------------------
   const [newSurvey, setNewSurvey] = useState({
     title: "",
     options: [] as { label: string; value: number }[],
   });
 
+  const [borrowPeriod, setBorrowPeriod] = useState(1);
+  //----------------------------------------------------------------
+
+  //listas ---------------------------------------------------------
   const periodOptions = [
     { name: "Por pouco tempo", value: 1 },
     { name: "Por um período", value: 2 },
   ];
 
   const impactLevels = ["Alto", "Médio", "Baixo", "Sugestão"];
+  //----------------------------------------------------------------
 
+  //funções utilitárias --------------------------------------------
   const nextStep = (newStep: number) => {
     setStep(newStep);
   };
@@ -113,9 +121,20 @@ export default function NewSolicitationBox({
   const validSolicitation = (): boolean => {
     return (
       watchSolicitation("title", "").length > 0 &&
-      watchSolicitation("description", "").length > 0
+      watchSolicitation("description", "").length > 0 &&
+      watchSolicitation("place", "").length > 0 &&
+      watchSolicitation("impact", "").length > 0
     );
   };
+
+  const closeBox = () => {
+    resetSolicitation();
+    resetSurvey();
+    resetJobRequest();
+    resetObjectRequest();
+    onClose();
+  };
+  //----------------------------------------------------------------
 
   const addSurveyOption = () => {
     setNewSurvey({
@@ -127,18 +146,12 @@ export default function NewSolicitationBox({
     });
   };
 
-  const closeBox = () => {
-    resetSolicitation();
-    resetSurvey();
-    setItemRequest({ itemName: "", period: 1, days: "" });
-    setJobRequest({ occupation: "", description: "" });
-    onClose();
-  };
-
-  // Tipos dos schemas
+  // Tipos dos schemas-----------------------------------------------
   // Solicitação
   type NewSolicitation = z.infer<typeof newSolicitationSchema>;
   type NewSurvey = z.infer<typeof newSurveySchema>;
+  type NewJobRequest = z.infer<typeof newJobRequest>;
+  type NewObjectRequest = z.infer<typeof newObjectRequest>;
 
   // Declarações do react hook forms
   // Solicitação
@@ -187,7 +200,42 @@ export default function NewSolicitationBox({
     name: "options",
   });
 
-  // handleSubmit dos forms
+  //jobRequest
+  const {
+    control: controlJobRequest,
+    register: registerJobRequest,
+    handleSubmit: handleNewJobRequest,
+    formState: { errors: errorsJobRequest },
+    reset: resetJobRequest,
+    watch: watchJobRequest,
+  } = useForm<NewJobRequest>({
+    resolver: zodResolver(newJobRequest),
+    defaultValues: {
+      professional: "",
+      description: "",
+    },
+  });
+
+  //objectRequest
+  const {
+    control: controlObjectRequest,
+    register: registerObjectRequest,
+    handleSubmit: handleNewObjectRequest,
+    formState: { errors: errorsObjectRequest },
+    reset: resetObjectRequest,
+    watch: watchObjectRequest,
+    setValue: setValueObjectRequest,
+    getValues: getValueObjectRequest,
+  } = useForm<NewObjectRequest>({
+    resolver: zodResolver(newObjectRequest),
+    defaultValues: {
+      object: "",
+      period: "",
+    },
+  });
+  //-----------------------------------------------------------------
+
+  // handleSubmit dos forms------------------------------------------
   // Solicitação
   const onSubmitNewSolicitation = (data: NewSolicitation) => {
     addSolicitation({
@@ -231,6 +279,51 @@ export default function NewSolicitationBox({
     });
     closeBox();
   };
+
+  const onSubmitNewJobRequest = (data: NewJobRequest) => {
+    addRequest({
+      title: data.professional,
+      type: "service",
+      status: "Aberto",
+      description: data.description,
+      createdAt: new Date(),
+      userData: {
+        id: loggedUser.id,
+        name: loggedUser.name,
+        place: loggedUser.place,
+      },
+    });
+    showToast({
+      title: "Sucesso",
+      text: "Pedido de serviço criado com sucesso",
+      duration: 6000,
+      type: "success",
+    });
+    closeBox();
+  };
+
+  const onSubmitNewObjectRequest = (data: NewObjectRequest) => {
+    addRequest({
+      title: data.object,
+      type: "object",
+      status: "Aberto",
+      days: data.period,
+      createdAt: new Date(),
+      userData: {
+        id: loggedUser.id,
+        name: loggedUser.name,
+        place: loggedUser.place,
+      },
+    });
+    showToast({
+      title: "Sucesso",
+      text: "Pedido de objeto criado com sucesso",
+      duration: 6000,
+      type: "success",
+    });
+    closeBox();
+  };
+  //-----------------------------------------------------------------
 
   return (
     <div>
@@ -293,14 +386,14 @@ export default function NewSolicitationBox({
 
           {/* Etapa 1 Pedir item*/}
           {inheritedType == 1 && inheritedStep == 2 && (
-            <form className="mt-4 flex flex-col gap-y-4 py-1 w-full z-50">
+            <form
+              onSubmit={handleNewObjectRequest(onSubmitNewObjectRequest)}
+              className="mt-4 flex flex-col gap-y-4 py-1 w-full z-50"
+            >
               <FloatLabel>
                 <InputText
                   id="item"
-                  value={itemRequest.itemName}
-                  onChange={(e) =>
-                    setItemRequest({ ...itemRequest, itemName: e.target.value })
-                  }
+                  {...registerObjectRequest("object")}
                   className="w-full"
                 />
                 <label htmlFor="item">O que você precisa?</label>
@@ -309,68 +402,65 @@ export default function NewSolicitationBox({
               <div className="card flex justify-content-center w-full">
                 <SelectButton
                   className="w-full *:w-1/2"
-                  value={itemRequest.period}
-                  onChange={(e) =>
-                    setItemRequest({ ...itemRequest, period: e.value })
-                  }
+                  value={borrowPeriod}
+                  onChange={(e) => setBorrowPeriod(e.target.value)}
                   optionLabel="name"
                   options={periodOptions}
                 />
               </div>
-              {itemRequest.period == 2 && (
+              {borrowPeriod == 2 && (
                 <FloatLabel className="mt-3">
                   <InputText
                     id="item"
-                    value={itemRequest.days}
-                    onChange={(e) =>
-                      setItemRequest({ ...itemRequest, days: e.target.value })
-                    }
+                    {...registerObjectRequest("period")}
                     className="w-full"
                     keyfilter="int"
-                    maxLength={2}
+                    maxLength={3}
                   />
                   <label htmlFor="item">Por quantos dias?</label>
                 </FloatLabel>
               )}
 
-              <Button label="Solicitar" className="!bg-primary" />
+              <Button type="submit" label="Solicitar" className="!bg-primary" />
             </form>
           )}
 
           {/* Etapa 1 Pedir serviço*/}
           {inheritedType == 3 && inheritedStep == 2 && (
-            <form className="mt-4 flex flex-col gap-y-4 py-1 w-full z-50">
+            <form
+              onSubmit={handleNewJobRequest(onSubmitNewJobRequest)}
+              className="mt-4 flex flex-col gap-y-4 py-1 w-full z-50"
+            >
               <FloatLabel>
-                <Dropdown
-                  value={jobRequest.occupation}
-                  onChange={(e) =>
-                    setJobRequest({ ...jobRequest, occupation: e.target.value })
-                  }
-                  options={profissoes}
-                  optionLabel="occupation"
-                  placeholder="Selecione"
-                  filter
-                  className="w-full"
+                <Controller
+                  name="professional"
+                  control={controlJobRequest}
+                  render={({ field }) => (
+                    <Dropdown
+                      {...field}
+                      options={profissoes}
+                      optionLabel="occupation"
+                      placeholder="Selecione"
+                      filter
+                      className="w-full"
+                    />
+                  )}
                 />
-                <label htmlFor="item">Que profissional você precisa?</label>
+                <label htmlFor="professional">
+                  Que profissional você precisa?
+                </label>
               </FloatLabel>
 
               <FloatLabel className="mt-3">
                 <InputText
                   id="item"
-                  value={jobRequest.description}
-                  onChange={(e) =>
-                    setJobRequest({
-                      ...jobRequest,
-                      description: e.target.value,
-                    })
-                  }
+                  {...registerJobRequest("description")}
                   className="w-full"
                 />
                 <label htmlFor="item">Descreva o trabalho brevemente</label>
               </FloatLabel>
 
-              <Button label="Solicitar" className="!bg-primary" />
+              <Button label="Solicitar" type="submit" className="!bg-primary" />
             </form>
           )}
 
@@ -469,9 +559,11 @@ export default function NewSolicitationBox({
                   {...registerSolicitation("title")}
                   className="w-full"
                   maxLength={40}
+                  invalid={!!errorsSolicitation.title}
                 />
                 <label htmlFor="item">
                   Título
+                  <span className="text-primary">*</span>
                   <span className="rounded-md bg-gray-100 px-1 ml-2">
                     {watchSolicitation("title", "").length}/40
                   </span>
@@ -484,9 +576,11 @@ export default function NewSolicitationBox({
                   {...registerSolicitation("place")}
                   className="w-full"
                   maxLength={50}
+                  invalid={!!errorsSolicitation.place}
                 />
                 <label htmlFor="item">
                   Local da ocorrência
+                  <span className="text-primary">*</span>
                   <span className="rounded-md bg-gray-100 px-1 ml-2">
                     {watchSolicitation("place", "").length}/50
                   </span>
@@ -495,14 +589,17 @@ export default function NewSolicitationBox({
 
               <FloatLabel>
                 <Dropdown
-                  value={impactLevels}
+                  value={watchSolicitation("impact", "")}
                   inputId="impact"
                   {...registerSolicitation("impact")}
                   options={impactLevels}
                   optionLabel="impact"
                   className="w-full"
+                  invalid={!!errorsSolicitation.impact}
                 />
-                <label htmlFor="impact">Impacto</label>
+                <label htmlFor="impact">
+                  Impacto<span className="text-primary">*</span>
+                </label>
               </FloatLabel>
 
               <FloatLabel>
@@ -514,6 +611,7 @@ export default function NewSolicitationBox({
                   maxLength={250}
                   rows={5}
                   cols={30}
+                  invalid={!!errorsSolicitation.description}
                 />
                 <label htmlFor="description">
                   Descreva a reclamação
@@ -543,6 +641,7 @@ export default function NewSolicitationBox({
                       maxSelectedLabels={6}
                       maxLength={6}
                       className="w-full md:w-20rem !text-xs"
+                      invalid={!!errorsSolicitation.tags}
                     />
                     <label htmlFor="item">
                       Gêneros da solicitação

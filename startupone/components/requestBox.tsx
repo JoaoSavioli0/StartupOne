@@ -15,6 +15,7 @@ interface RequestProps {
   closedAt?: Date;
   description: string;
   days: number;
+  status: string;
 }
 
 export default function RequestBox({
@@ -25,8 +26,9 @@ export default function RequestBox({
   closedAt,
   description,
   days,
+  status,
 }: RequestProps) {
-  console.log("CreatedAt: ", createdAt);
+  console.log("Tipo: ", type);
   return (
     <div className="w-full rounded-lg p-3 bg-white flex flex-col relative shadow-xs">
       <div className="absolute top-[15px] end-[15px] rounded-full p-[5px] hover:bg-zinc-100 transition-colors duration-200 cursor-pointer">
@@ -47,6 +49,7 @@ export default function RequestBox({
       </div>
       <div className="pt-4 flex gap-x-2 items-center">
         <i className="pi pi-wrench"></i>
+        {type === "service" && <span>Procuro </span>}
         <h1 className="text-lg font-medium">{title}</h1>
         <span>
           {type === "object" &&
@@ -76,7 +79,7 @@ export default function RequestBox({
 
         <div className="h-full items-center flex gap-x-1.5 text-orange-400 px-2">
           <ClockIcon weight="bold" />
-          <p className="text-sm font-medium">Pendente</p>
+          <p className="text-sm font-medium">{status}</p>
         </div>
       </div>
     </div>
